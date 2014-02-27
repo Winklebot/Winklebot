@@ -1,4 +1,6 @@
 
+
+
 /**************************************************************
   File:      Beacon_Presence_Detection_Test_Basic.ino
   Contents:  Detects whether the sensor is facing a beacon and what
@@ -11,12 +13,17 @@
 **************************************************************/
 
 /*---------------- Includes ---------------------------------*/
-
+#include <Winklelib.h>
 /*---------------- Module Defines ---------------------------*/
-#define BEACON_INPUT_PIN 3 //make sure to use different names when integrating
+#define TAPE_INPUT_PIN 2
+#define BEACON_INPUT_PIN 3
+#define BEACON_INTERRUPT_NUMBER 1
+#define TAPE_INTERRUPT_NUMBER 0  
+  
 #define SERVER_BEACON_MICROS 1176
 #define EXCHANGE_BEACON_MICROS 333
 #define NO_SIGNAL_MICROS 2000
+
 
 /*---------------- Module Function Prototypes ---------------*/
 void riseDetected();
@@ -63,10 +70,10 @@ void RespToKey() {
   theKey = Serial.read();
   unsigned long currentPeriod = period; // make a copy so it doesn't get changed by interrupts
   if(currentPeriod > SERVER_BEACON_MICROS + 10 || currentPeriod < SERVER_BEACON_MICROS - 10){
-    Serial.println("Beacon out of range");
+    Serial.println("Server Beacon out of range");
   }
   else{
-    Serial.println("Beacon in range");
+    Serial.println("Server Beacon in range");
   }
   Serial.print("Period: ");
   Serial.println(currentPeriod);
