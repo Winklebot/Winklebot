@@ -22,6 +22,9 @@ When      Who  Description
 
 /*----------------------------- Module Defines ------------------------------*/
 #define BEACON_INPUT_PIN 3 
+
+#define BEACON_INTERRUPT_NUMBER 1
+#define TAPE_INTERRUPT_NUMBER 0  
 #define SERVER_BEACON_MICROS 1176
 #define EXCHANGE_BEACON_MICROS 333
 #define NO_SIGNAL_MICROS 2000
@@ -55,7 +58,20 @@ void WinkleInit(void) {
   /* initialize bumper pins */
   //DDRD &= 0x0F;   // make bumper sensor pins inputs
 }
+void DriveForward(char newSpeed){
+	LeftMtrSpeed(newSpeed);
+	RightMtrSpeed(newSpeed);
+}
 
+void SpinRight(char newSpeed){
+	LeftMtrSpeed(newSpeed);
+	RightMtrSpeed(-1 * newSpeed);
+}
+
+void SpinLeft(char newSpeed){
+	LeftMtrSpeed(-1 * newSpeed);
+	RightMtrSpeed(newSpeed);
+}
 /******************************************************************************
   Function:    LeftMtrSpeed
   Contents:    This function is used to set the speed and direction of the left motor.

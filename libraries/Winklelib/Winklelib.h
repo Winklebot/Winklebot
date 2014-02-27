@@ -3,6 +3,10 @@ typedef enum {
 } RoachReturn_t;
 
 void WinkleInit(void);
+void DriveForward(char newSpeed);
+void SpinRight(char newSpeed);
+void SpinLeft(char newSpeed);
+
 RoachReturn_t LeftMtrSpeed(char newSpeed);
 RoachReturn_t RightMtrSpeed(char newSpeed);
 unsigned char ReadBumpers(void);
