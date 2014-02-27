@@ -23,13 +23,13 @@ unsigned char TestForKey(void);
 void RespToKey();
 /*---------------- Module Level Variables -------------------*/
 volatile unsigned long previousTime = 0;
-volatile unsigned long period = 1000; 
+volatile unsigned long period = 100000; 
 /*---------------- Arduino Main Functions -------------------*/
 void setup() {
   Serial.begin(9600);
   Serial.println("The Beacon_Frequency_Detection_Test program has started!");
   pinMode(BEACON_INPUT_PIN, INPUT);
-  attachInterrupt(0, riseDetected, RISING);  
+  attachInterrupt(1, riseDetected, RISING);  
 }
 
 void loop() {
