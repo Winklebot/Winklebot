@@ -21,8 +21,8 @@
 
 unsigned char theKey;
 unsigned char direct;
-int ENABLE1 = 3;
-int DIR1 = 2;
+int ENABLE1 = 13;
+int DIR1 = 12;
 //int ENABLE2 = 5;
 //int DIR2 = 4;
 void RespToKey(void);
