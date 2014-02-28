@@ -1,0 +1,55 @@
+
+/**************************************************************
+  File:      _2013_0226_ButtonPusherTest3.pde 
+  Contents:  
+            
+             This program interfaces w a DC motor via an H-bridge
+             on the L298 chip. 
+            
+             
+  Notes:    Target: Arduino UNO R1 & R2
+            Arduino IDE version: 0022
+            
+   
+  History:
+  when      who  what/why
+  ----      ---  -------------------------------------------
+  02/15/13  ECM  program created for Lab3
+**************************************************************/
+
+/*---------------- Includes ---------------------------------*/
+#include <Pulse.h>
+
+/*---------------- Module Defines ---------------------------*/
+                                 
+int ENABLE = 2;               
+int DIRPIN = 3;                
+int FLIPDIR = 0;                  // we'll be alternately setting this as 0 or 1 in order to flip the direction
+
+
+/*---------------- Arduino Main Functions -------------------*/
+void setup() {
+  Serial.begin(9600);
+  Serial.println("The button pusher program has started!");
+  
+  pinMode(DIRPIN, OUTPUT);
+  pinMode (ENABLE, OUTPUT);
+  
+  digitalWrite(DIRPIN, HIGH);      // set our 'forward' dir as high
+}
+
+void loop() {
+  analogWrite(ENABLE, HIGH);        //now the enable output is scaled correctly
+  
+
+  if (Serial.available()) {              //using keystroke to flip direction again
+    Serial.read();
+    FLIPDIR = 1-FLIPDIR;
+    digitalWrite(DIRPIN, FLIPDIR);
+                          
+  }
+  
+  else {
+    digitalWrite(DIRPIN, FLIPDIR);
+  }
+}
