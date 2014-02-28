@@ -10,6 +10,8 @@
 
 /*---------------- Includes ---------------------------------*/
 
+boolean onTape = false;
+boolean tapeFlag = false;
 /*---------------- Module Defines ---------------------------*/
 #define TAPE_INPUT_PIN 2
 
@@ -26,19 +28,30 @@ void setup() {
 }
 
 void loop() {
+  if(tapeFlag){
+    tapeFlag = false;
+    if(onTape == true){
+      Serial.println("Moving ONTO tape");
+    }  
+    if(onTape == false){
+      Serial.println("Moving OFF OF tape");
+    }
+  }
   
 }
 
 /*---------------- Module Functions -------------------------*/
 
 void rise_detected() {
-  Serial.println("Moving ONTO tape!");
+  tapeFlag = true;
+  onTape = true; 
   detachInterrupt(0);
   attachInterrupt(0, fall_detected, FALLING);  
 
 }  
 void fall_detected() {
-  Serial.println("Moving OFF of tape!");
+  tapeFlag = true;
+  onTape = false;
   detachInterrupt(0);
   attachInterrupt(0, rise_detected, RISING);  
   
