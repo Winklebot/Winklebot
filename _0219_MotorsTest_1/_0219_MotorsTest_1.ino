@@ -33,11 +33,9 @@
 **************************************************************/
 
 /*---------------- Includes ---------------------------------*/
-#include <Roachlib.h>
+#include <Winklelib.h>
 
 /*---------------- Module Defines ---------------------------*/
-#define left_motor_pin       3
-#define right_motor_pin      5
 
 /*---------------- Module Function Prototypes ---------------*/
 unsigned char TestForKey(void);
@@ -49,7 +47,8 @@ unsigned char TestTimerExpired(void);
 void setup() {
   Serial.begin(9600);
   Serial.println("The MotorsTest_1 program has started!");
-  TMRArd_InitTimer(0, TIME_INTERVAL);
+  WinkleInit();
+  //TMRArd_InitTimer(0, TIME_INTERVAL);
 
 }
 
@@ -73,62 +72,55 @@ void RespToKey(void) {
   theKey = Serial.read();
   
   if(theKey == 'f') {
-    Serial.print(theKey);
     Serial.println("I'm going forward!");
       LeftMtrSpeed(10);
       RightMtrSpeed(10);
   }
   
   else if (theKey == 'b') {
-      Serial.print(theKey);
       Serial.println("I'm going backwards!");
       LeftMtrSpeed(-10);
       RightMtrSpeed(-10);
   }
   
   else if (theKey == 'x') {
-      Serial.print(theKey);
       Serial.println("I'm stopping!");
       LeftMtrSpeed(0);
       RightMtrSpeed(0);
   }
   
-  else if (theKey == 'fs') {
-      Serial.print(theKey);
+  else if (theKey == 'w') {
       Serial.println("I'm going forward slowly!");
       LeftMtrSpeed(5);
       RightMtrSpeed(5);
   }
   
-  else if (theKey == 'bs') {
-      Serial.print(theKey);
+  else if (theKey == 'q') {
       Serial.println("I'm going backwards slowly!");
       LeftMtrSpeed(-5);
       RightMtrSpeed(-5);
   }
   
   else if (theKey == 'l') {
-      Serial.print(theKey);
       Serial.println("I'm turning left!");
       //start timer for some amount of time - we need to test to figure out
       //exactly how long it takes our motors to turn 90deg
       LeftMtrSpeed(-5);
       RightMtrSpeed(5);
       //timer expires
-      LeftMtrSpeed(10);
-      RightMtrSpeed(10);
+    //  LeftMtrSpeed(10);
+     // RightMtrSpeed(10);
   }
   
   else if (theKey == 'r') {
-      Serial.print(theKey);
       Serial.println("I'm turning right!");
       //start timer for some amount of time - we need to test to figure out
       //exactly how long it takes our motors to turn 90deg
       LeftMtrSpeed(5);
       RightMtrSpeed(-5);
       //timer expires
-      LeftMtrSpeed(10);
-      RightMtrSpeed(10);
+   //   LeftMtrSpeed(10);
+     // RightMtrSpeed(10);
   }
   
 }
