@@ -1,0 +1,21 @@
+#######################################
+# Syntax Coloring Map: Timers
+#######################################
+
+#######################################
+# Datatypes       KEYWORD1
+#######################################
+TMRArdReturn_t    KEYWORD1
+
+#######################################
+# Methods and Functions KEYWORD2
+#######################################
+TMRArd_InitTimer          KEYWORD2
+TMRArd_SetTimer           KEYWORD2
+TMRArd_StartTimer         KEYWORD2
+TMRArd_StopTimer          KEYWORD2
+TMRArd_IsTimerActive      KEYWORD2
+TMRArd_IsTimerExpired     KEYWORD2
+TMRArd_ClearTimerExpired  KEYWORD2
+TMRArd_GetTime            KEYWORD2
+
