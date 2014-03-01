@@ -16,7 +16,8 @@
 #define BEACON_INTERRUPT_NUMBER 1
 #define TAPE_INTERRUPT_NUMBER 0  
 
-
+boolean onTape = false;
+boolean tapeFlag = false;
 
 /*---------------- Module Function Prototypes ---------------*/
 void rise_detected();
@@ -33,13 +34,24 @@ void setup() {
 }
 
 void loop() {
+  if(tapeFlag){
+    tapeFlag = false;
+    if(onTape == true){
+      Serial.println("Moving ONTO tape");
+    }  
+    if(onTape == false){
+      Serial.println("Moving OFF OF tape");
+    }
+  }
+  
   
 }
 
 /*---------------- Module Functions -------------------------*/
 
 void rise_detected() {
-  Serial.println("Moving ONTO tape!");
+  onTape = true;
+  tapeFlag = true;
   DriveForward(0);
 
 }  
