@@ -40,7 +40,7 @@
 /*---------------- Module Function Prototypes ---------------*/
 unsigned char TestForKey(void);
 void RespToKey(void);
-
+int pause = 10; // defining the microsecond delay between direction changes
 unsigned char TestTimerExpired(void);
 
 /*---------------- Arduino Main Functions -------------------*/
@@ -73,12 +73,18 @@ void RespToKey(void) {
   
   if(theKey == 'f') {
     Serial.println("I'm going forward!");
+      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+      RightMtrSpeed(0);
+      delayMicroseconds(pause);
       LeftMtrSpeed(10);
       RightMtrSpeed(10);
   }
   
   else if (theKey == 'b') {
       Serial.println("I'm going backwards!");
+      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+      RightMtrSpeed(0);
+      delayMicroseconds(pause);
       LeftMtrSpeed(-10);
       RightMtrSpeed(-10);
   }
@@ -91,6 +97,9 @@ void RespToKey(void) {
   
   else if (theKey == 'w') {
       Serial.println("I'm going forward slowly!");
+      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+      RightMtrSpeed(0);
+      delayMicroseconds(pause);
       LeftMtrSpeed(5);
       RightMtrSpeed(5);
   }
@@ -105,6 +114,9 @@ void RespToKey(void) {
       Serial.println("I'm turning left!");
       //start timer for some amount of time - we need to test to figure out
       //exactly how long it takes our motors to turn 90deg
+      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+      RightMtrSpeed(0);
+      delayMicroseconds(pause);
       LeftMtrSpeed(-5);
       RightMtrSpeed(5);
       //timer expires
@@ -116,6 +128,9 @@ void RespToKey(void) {
       Serial.println("I'm turning right!");
       //start timer for some amount of time - we need to test to figure out
       //exactly how long it takes our motors to turn 90deg
+      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+      RightMtrSpeed(0);
+      delayMicroseconds(pause);
       LeftMtrSpeed(5);
       RightMtrSpeed(-5);
       //timer expires
