@@ -21,7 +21,7 @@
 
 //unsigned char theKey;
 //unsigned char direct;
-int SERVO = 3;
+int SERVO = 9;
 //int DIR1 = 12;
 //int ENABLE2 = 5;
 //int DIR2 = 4;
