@@ -34,8 +34,6 @@
 
 /*---------------- Includes ---------------------------------*/
 #include <Winklelib.h>
-#include <Timers.h>
-#include <Servo.h>
 
 /*---------------- Module Defines ---------------------------*/
 
@@ -60,7 +58,12 @@ void loop() {
 }
 
 /*---------------- Module Functions -------------------------*/
-
+unsigned char TestForKey(void) {
+  unsigned char KeyEventOccurred;
+  
+  KeyEventOccurred = Serial.available();
+  return KeyEventOccurred;
+}
 
 
 void RespToKey(void) {
