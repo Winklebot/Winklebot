@@ -17,11 +17,11 @@
 
 
 /*----------------------------- Module Defines ------------------------------*/
- #define LEFT_MOTOR_DIR           8
- #define LEFT_MOTOR_EN            9
- #define RIGHT_MOTOR_DIR          12		//moved this from 10 to 12 in order to give the pin_Servo 9 or 10	
+ #define L_MOTOR_DIR           8
+ #define L_MOTOR_EN            9
+ #define R_MOTOR_DIR          12		//moved this from 10 to 12 in order to give the pin_Servo 9 or 10	
  
- #define RIGHT_MOTOR_EN           11
+ #define R_MOTOR_EN           11
 
 // #define LEFT_FRONT_BUMPER        4
 // #define RIGHT_FRONT_BUMPER       5
@@ -312,7 +312,7 @@ void RotateCW(unsigned char newSpeed) {
 
 //Function: RotateCCW: rotates the bot CCW.
 void RotateCCW(unsigned char newSpeed) {
-  Serial.println("I'm rotoating counterclockwise!")
+  Serial.println("I'm rotating counterclockwise!");
   LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
   RightMtrSpeed(0);
   delayMicroseconds(10);

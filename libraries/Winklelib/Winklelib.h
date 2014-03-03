@@ -13,12 +13,8 @@ typedef enum {
    OK_SPEED, ERR_BADSPEED
 } RoachReturn_t;
 
-class WinkleLib
-{
-  public:
     void BitBotInit(void);
-    Return_t LeftMtrSpeed(char newSpeed);
-    Return_t RightMtrSpeed(char newSpeed);
+    
     void LeftMtrSpeed();
     void RightMtrSpeed();
     void Forward(unsigned char newSpeed);
@@ -26,7 +22,7 @@ class WinkleLib
     void Backward(unsigned char newSpeed);
     void Stop();
     void TurnLeft(unsigned char newSpeed);
-    void TurnRight(unsigned char newSpeed;
+    void TurnRight(unsigned char newSpeed);
     void RotateCW(unsigned char newSpeed);
  //   void RotateCW (unsigned char LeftMtrSpeed, unsigned char RightMtrSpeed);
     void RotateCCW(unsigned char newSpeed);
@@ -48,8 +44,6 @@ class WinkleLib
    void SET_SHARED_WORD_TO(unsigned int);
    unsigned int GET_SHARED_WORD(void);
 
-
-};
 
 
 #endif
