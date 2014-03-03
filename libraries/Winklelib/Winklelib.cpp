@@ -1,16 +1,10 @@
-/******************************************************************************
-Module
-  Winklebotlib.cpp 
-Description
-  
-Arduino IDE version:  0022
+//MotorLib.cpp - this library lists out the functions we need to control
+// the motors and bumpers of our ME210 BitBot.
+// Team WinkleBot -- last updated 3.2.2014
+// code influenced by RoachLib
+// we can also begin to assign pins in these libraries, if we have permanent pin functions
 
-History
-When      Who  Description
---------  ---  -------------------------------------
-01/19/12  RMO  created new version of Roachlib.c for the Arduino UNO R2
 
-******************************************************************************/
 /*----------------------------- Include Files -------------------------------*/
 #if defined(ARDUINO) && ARDUINO >= 100 
 #include "Arduino.h"  // if Arduino version 1.0 or later, include Arduino.h
@@ -19,21 +13,44 @@ When      Who  Description
 #endif
 
 #include "Winklelib.h"
+#include "Servo.h"
+
 
 /*----------------------------- Module Defines ------------------------------*/
-#define BEACON_INPUT_PIN 3 
+ #define LEFT_MOTOR_DIR           8
+ #define LEFT_MOTOR_EN            9
+ #define RIGHT_MOTOR_DIR          10
+ #define RIGHT_MOTOR_EN           11
 
-#define BEACON_INTERRUPT_NUMBER 1
-#define TAPE_INTERRUPT_NUMBER 0  
-#define SERVER_BEACON_MICROS 1176
-#define EXCHANGE_BEACON_MICROS 333
-#define NO_SIGNAL_MICROS 2000
-#define L_MOTOR_DIR  8   // left motor direction controlled with pin 8
-#define L_MOTOR_EN   9   // left motor enable controlled by pin 9
-#define R_MOTOR_DIR  10  // right motor direction controlled with pin 10
-#define R_MOTOR_EN   11  // right motor enable controlled by pin 11
+// #define LEFT_FRONT_BUMPER        4
+// #define RIGHT_FRONT_BUMPER       5
+// #define LEFT_BACK_BUMPER         6
+// #define RIGHT_BACK_BUMPER        7
+
+ #define TAPE_INPUT_PIN           2
+ #define BEACON_INPUT_PIN         3
+ #define BEACON_INTERRUPT_NUMBER  1
+ #define TAPE_INTERRUPT_NUMBER    0
+
+// #define BUTTON_PUSH_DIR          12
+// #define BUTTON_PUSH_EN           13
+
+#define SERVER_BEACON_MICROS 		1176
+#define EXCHANGE_BEACON_MICRO		 333
+#define NO_SIGNAL_MICROS 		2000
+
 
 #define SPEED_SCALER 25  // map 0-255 PWM settings to 0-10 speed settings
+
+
+
+// ***need to initiate the TAPE_INPUT, BEACON_INPUT, BEACON_INTERRUPT_NUMBER, AND TAPE_INTERRUPT_NUMBER pins
+// can we do it with pinModes? 
+// pinMode(BEACON_INPUT_PIN, INPUT);  
+// pinMode(TAPE_INPUT_PIN, INPUT);
+// pinMode(BUTTON_PUSH_DIR, OUTPUT);
+// pinMode(BUTTON_PUSH_EN, OUTPUT);
+
 
 
 /*----------------------------- Module Variables ---------------------------*/
@@ -180,6 +197,132 @@ void SET_SHARED_WORD_TO(unsigned int newWord)
   SharedWord = newWord;
 }
 
+// Function: BitBotInit: Initializes the BitBot. Includes initializing the port pins.
+void BitBotInit(void) {
+  PORTB &= 0xF0;  // EN=0 (off) for both motors and also DIR=0 for both motors
+  DDRB |= 0x0F;   // make motor EN and DIR pins outputs (fromRoachProof)
+  DDRD &= 0x0F;   // make bumper sensor pins inputs
+}
+
+// Function: LeftMtrSpeed: Sets speed and direction of the left motor with a value from -10 to 10
+//Return_t LeftMtrSpeed(char newSpeed) {
+//  if ((newSpeed < -10) || (newSpeed > 10)) {
+//    return ERR_BADSPEED;
+//  }
+//  if (newSpeed < 0) {
+//    digitalWrite(LEFT_MOTOR_DIR,LOW); // set the direction to reverse
+//  } else {
+//    digitalWrite(LEFT_MOTOR_DIR,HIGH); // set the direction to forward
+//  }
+//  analogWrite(LEFT_MOTOR_EN,SPEED_DIVIDER*abs(newSpeed));
+//    return OK_SPEED;
+//}
+
+// Function: RightMtrSpeed: Sets speed and direction of the right motor with a value from -10 to 10
+//Return_t RightMtrSpeed(char newSpeed) {
+//  if ((newSpeed < -10) || (newSpeed > 10)) {
+//    return ERR_BADSPEED;
+//  }
+//  if (newSpeed < 0) {
+//    digitalWrite(RIGHT_MOTOR_DIR,LOW); // set the direction to reverse
+//  } else {
+//    digitalWrite(RIGHT_MOTOR_DIR,HIGH); // set the direction to forward
+//  }
+//  analogWrite(RIGHT_MOTOR_EN,SPEED_DIVIDER*abs(newSpeed));
+//    return OK_SPEED;
+//}
+
+//Function: ReadBumpers: Checks bumper sensors and reports if the bumper has been triggered.
+// Like RoachLib: returns an 8 bit value where the upper 4 bits correspond to bumper sensors.
+// If a bumper is hit, the corresponding bit will be 0, otherwise it will be 1.
+// The lower 4 bits will always return 0.
+
+//unsigned char ReadBumpers(void) {
+//  unsigned char bumpers = 0;
+  
+//  bumpers = PIND & 0xF0;
+//  return bumpers;
+//}
+
+//Function: Forward: motors move the BitBot forward
+void Forward(unsigned char newSpeed){
+  Serial.println("I'm going forward!");
+  LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+  RightMtrSpeed(0);
+  delayMicroseconds(10);
+  LeftMtrSpeed(newSpeed);
+  RightMtrSpeed(newSpeed);
+// void Forward(unsigned char LeftMtrSpeed, unsigned char RightMtrSpeed);
+}
+
+//Function: Backward: motors move the BitBot backward
+void Backward(unsigned char newSpeed){
+  Serial.println("I'm going backward!");
+  LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+  RightMtrSpeed(0);
+  delayMicroseconds(10);
+  LeftMtrSpeed(0-newSpeed);
+  RightMtrSpeed(0-newSpeed);
+}
+
+//Function: Stop: stops the motors
+void Stop() {
+  Serial.println("I'm stopping!");
+  LeftMtrSpeed(0);
+  RightMtrSpeed(0);
+}
+
+//Function: TurnRight: Turns right at given speed.
+void TurnRight(unsigned char newSpeed) {
+  Serial.println("I'm turning right!");
+  LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+  RightMtrSpeed(0);
+  delayMicroseconds(10);
+  LeftMtrSpeed(newSpeed);
+  RightMtrSpeed(0-newSpeed);
+}
+
+//Function: TurnLeft: Turns left at given speed.
+void TurnLeft(unsigned char newSpeed) {
+  Serial.println("I'm turning left!");
+  LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+  RightMtrSpeed(0);
+  delayMicroseconds(10);
+  LeftMtrSpeed(0-newSpeed);
+  RightMtrSpeed(newSpeed);
+}
+
+
+//Function: RotateCW: rotates the bot CW.
+void RotateCW(unsigned char newSpeed) {
+  Serial.println("I'm rotating clockwise!");
+  LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+  RightMtrSpeed(0);
+  delayMicroseconds(10);
+  LeftMtrSpeed(0-.5*newSpeed);
+  RightMtrSpeed(newSpeed);
+}
+
+//Function: RotateCCW: rotates the bot CCW.
+void RotateCCW(unsigned char newSpeed) {
+  Serial.println("I'm rotoating counterclockwise!")
+  LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
+  RightMtrSpeed(0);
+  delayMicroseconds(10);
+  LeftMtrSpeed(newSpeed);
+  RightMtrSpeed(-0.5*newSpeed);
+}
+
+//Function: TestForKey
+unsigned char TestForKey(void) {
+  unsigned char KeyEventOccurred;
+  
+  KeyEventOccurred = Serial.available();
+  return KeyEventOccurred;
+}
+
+//Function: RespToKey
+//defined within each separate module
 /******************************************************************************
   Function:    GET_SHARED_WORD
   Contents:    This function returns the value of the module-level variable
