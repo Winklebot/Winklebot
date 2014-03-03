@@ -8,7 +8,8 @@
 //  History:
 //  when      who  what/why
 //  ----      ---  -------------------------------------------
-//  03/01/14  ECM  Program created
+//  03/01/14  HMK  Program created
+//  03/02/14  ECM  Program updated with new pins
 //  
 //**************************************************************/
 
@@ -24,7 +25,7 @@ Servo myservo;
 
 /*---------------- Module Function Prototypes ---------------*/
 
-<<<<<<< HEAD
+/* HEAD */
 //unsigned char theKey;
 //unsigned char direct;
 int SERVO = 10;
@@ -33,8 +34,8 @@ int SERVO = 10;
 //int DIR2 = 4;
 //void RespToKey(void);
 
-=======
->>>>>>> FETCH_HEAD
+
+/* FETCH_HEAD */
 /*---------------- Module Level Variables ---------------*/
 
 /*---------------- Arduino Main Functions -------------------*/
@@ -50,4 +51,3 @@ void loop() {
 }
       
 /*---------------- Module Functions -------------------------*/
-
