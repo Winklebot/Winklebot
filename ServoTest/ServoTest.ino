@@ -11,6 +11,8 @@
 //  03/01/14  HMK  Program created
 //  03/02/14  ECM  Program updated with new pins
 //  
+//
+// control (side blue wire goes to pin (10)), black is ground, red is power
 //**************************************************************/
 
 /*---------------- Includes ---------------------------------*/
