@@ -19,7 +19,8 @@
 /*----------------------------- Module Defines ------------------------------*/
  #define LEFT_MOTOR_DIR           8
  #define LEFT_MOTOR_EN            9
- #define RIGHT_MOTOR_DIR          10
+ #define RIGHT_MOTOR_DIR          12		//moved this from 10 to 12 in order to give the pin_Servo 9 or 10	
+ 
  #define RIGHT_MOTOR_EN           11
 
 // #define LEFT_FRONT_BUMPER        4
@@ -29,15 +30,21 @@
 
  #define TAPE_INPUT_PIN           2
  #define BEACON_INPUT_PIN         3
- #define BEACON_INTERRUPT_NUMBER  1
- #define TAPE_INTERRUPT_NUMBER    0
+
 
 // #define BUTTON_PUSH_DIR          12
 // #define BUTTON_PUSH_EN           13
 
+ #define pin_Servo	            10		
+
 #define SERVER_BEACON_MICROS 		1176
 #define EXCHANGE_BEACON_MICRO		 333
 #define NO_SIGNAL_MICROS 		2000
+
+ #define BEACON_INTERRUPT_NUMBER  	1 //number, not pin
+ #define TAPE_INTERRUPT_NUMBER  	 0 //number, not pin
+ 
+ //free pins: 0, 1 (we shouldn't use), 12, all the analog pins
 
 
 #define SPEED_SCALER 25  // map 0-255 PWM settings to 0-10 speed settings
