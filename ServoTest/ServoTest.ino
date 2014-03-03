@@ -8,24 +8,26 @@
 //  History:
 //  when      who  what/why
 //  ----      ---  -------------------------------------------
-//  03/01/14  HMK  Program created
+//  03/01/14  ECM  Program created
 //  
 //**************************************************************/
 
 /*---------------- Includes ---------------------------------*/
 //#include <SoftwareServo.h>
+//#include <Winklelib.h>
 #include <Servo.h>
+
 
 /*---------------- Module Defines ---------------------------*/
 Servo myservo;
-//#define pinServo 3;
+
 
 /*---------------- Module Function Prototypes ---------------*/
 
 <<<<<<< HEAD
 //unsigned char theKey;
 //unsigned char direct;
-int SERVO = 9;
+int SERVO = 10;
 //int DIR1 = 12;
 //int ENABLE2 = 5;
 //int DIR2 = 4;
@@ -40,7 +42,7 @@ void setup() {
   Serial.begin(9600);
 //  Serial.println("Starting ServoTest...");
 //  pinMode(SERVO, OUTPUT);
-  myservo.attach(9);
+  myservo.attach(10);
 }
 
 void loop() {  
