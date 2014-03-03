@@ -1,6 +1,4 @@
 
-
-
 /**************************************************************
   File:      Beacon_Presence_Detection_Test_Basic.ino
   Contents:  Detects whether the sensor is facing a beacon and what
@@ -28,12 +26,11 @@
 
 /*---------------- Module Function Prototypes ---------------*/
 void riseDetected();
-unsigned char TestForKey(void);
 void RespToKey();
 /*---------------- Module Level Variables -------------------*/
 volatile unsigned long previousTime = 0;
 volatile unsigned long period = NO_SIGNAL_MICROS;
-boolean risingEdgeFlag = false; 
+volatile boolean risingEdgeFlag = false; 
 /*---------------- Arduino Main Functions -------------------*/
 void setup() {
   Serial.begin(9600);
@@ -65,12 +62,7 @@ void riseDetected() {
 }  
 
 
-unsigned char TestForKey(void) {
-  unsigned char KeyEventOccurred;
-  
-  KeyEventOccurred = Serial.available();
-  return KeyEventOccurred;
-}
+
 
 void RespToKey() {
   unsigned char theKey;

@@ -13,7 +13,6 @@
 #endif
 
 #include "Winklelib.h"
-#include "Servo.h"
 
 
 /*----------------------------- Module Defines ------------------------------*/
