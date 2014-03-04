@@ -37,8 +37,7 @@ void StateLib_work();
 #include "Winklebot.h"
 
 // delineate all our states
-
-/* The Different States */
+//DECLARING OUR STATES
 typedef enum {
 	STARTING_STATE
         ORIENTING
@@ -51,6 +50,8 @@ typedef enum {
         COIN_EXCHANGING 
   } STATES;
 
+//VARIABLES
+static unsigned char current_state = STARTING_STATE
 
 // WHAT HAPPENS WHEN WE MOVE FROM ONE STATE TO ANOTHER? NEED TO CLEAR TIMERS,
 // CLEAR ANY COUNTERS, ETC.
@@ -59,6 +60,16 @@ void in_between_states (unsigned char new_state) {
   TMRArd_StopTimer(MAIN_TIMER);
   TMRArd_ClearTimerExpired(MAIN_TIMER);
   current_state = new_state;
+}
+
+//WHAT HAPPENS IN EACH STATE?
+//(want to declare an if(entered_state) statement for each of these?
+
+void STARTING_STATE {
+  // initialize pins
+  // set up tape sensors
+  // set up beacon sensors
+  // set up motors
 }
 
 
