@@ -23,21 +23,21 @@ void setup() {
 }
 
 void loop() {
-  int val = digitalRead(4);
+  int LFB = digitalRead(4);
 //  Serial.println("Left Front Bumper");
-  Serial.println(val);
+  Serial.println(LFB);
   
-//  int val = digitalRead(5);
+//  int RFB = digitalRead(5);
 //  Serial.println("Right Front Bumper");
-//  Serial.println(val);
+//  Serial.println(RFB);
 
-//  int val = digitalRead(6);
+//  int LBB = digitalRead(6);
 //  Serial.println("Left Back Bumper");
-//  Serial.println(val);
+//  Serial.println(LBB);
 
-//  int val = digitalRead(7);
+//  int RBB = digitalRead(7);
 //  Serial.println("Right Back Bumper");
-//  Serial.println(val);
+//  Serial.println(RBB);
   
   
 }
