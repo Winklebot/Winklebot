@@ -1,4 +1,4 @@
-h//MotorLib.cpp - this library lists out the functions we need to control
+//MotorLib.cpp - this library lists out the functions we need to control
 // the motors and bumpers of our ME210 BitBot.
 // Team WinkleBot -- last updated 3.2.2014
 // code influenced by RoachLib
