@@ -4,7 +4,7 @@
 #include "Arduino.h" 
 #include "Winklelib.h"
 #include "Timers.h"
-
+#include "Servo.h"
 
 #define LEFT_FRONT_BUMPER        4
 #define RIGHT_FRONT_BUMPER       5
@@ -24,22 +24,20 @@ void setup() {
 
 void loop() {
   int LFB = digitalRead(4);
-//  Serial.println("Left Front Bumper");
+  Serial.println("Left Front Bumper");
   Serial.println(LFB);
   
-//  int RFB = digitalRead(5);
-//  Serial.println("Right Front Bumper");
-//  Serial.println(RFB);
+  int RFB = digitalRead(5);
+  Serial.println("Right Front Bumper");
+  Serial.println(RFB);
 
-//  int LBB = digitalRead(6);
-//  Serial.println("Left Back Bumper");
-//  Serial.println(LBB);
+  int LBB = digitalRead(6);
+  Serial.println("Left Back Bumper");
+  Serial.println(LBB);
 
-//  int RBB = digitalRead(7);
-//  Serial.println("Right Back Bumper");
-//  Serial.println(RBB);
-  
-  
+  int RBB = digitalRead(7);
+  Serial.println("Right Back Bumper");
+  Serial.println(RBB);  
 }
   
 
