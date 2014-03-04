@@ -57,6 +57,12 @@ void setup() {
 void loop() {
   if (TestForKey());
     RespToKey();
+ 
+ //turnRight
+    
+
+      LeftMtrSpeed(5);
+      RightMtrSpeed(-5);
 }
 
 /*---------------- Module Functions -------------------------*/
