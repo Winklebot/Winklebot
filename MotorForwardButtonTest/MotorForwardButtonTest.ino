@@ -1,30 +1,10 @@
-
 /**************************************************************
-  File:      _0219_MotorsTest_1.pde 
-  Contents:  This program executes a number of test sequences to 
-             ensure our motor is working.
-             Test of GitHub....
-             
-             press 'f': drive forward
-             press 'b': drive backwards
-             press 'x': stop
-             
-             press 's': drive forward, but slowly
-             press 'w': drive backward, but slowly
-
-
-             press 'r': turn 90deg right, then drive straight
-             press 'l': turn 90deg left, then drive straight
-             
-             
-             if proximity sensor/bumpers sense walls, turn around
-             
-             do we want to create libraries we can call, rather than
-             writing out all the functions?
+  File:      MotorForwardButtonTest.pde 
+  Contents:  This program drives the bot towards the server button
+            and drives the bot into the server button, back and forth
              
   Notes:    Target: Arduino UNO R1 & R2
             Arduino IDE version: 0022
-            
    
   History:
   when      who  what/why
@@ -36,112 +16,82 @@
 #include <Winklelib.h>
 #include <Timers.h>
 #include <Servo.h>
+#define DRIVING_TOWARDS_EXCHANGE 1
+#define PRESSING 2
+#define DRIVING_TOWARDS_SERVER 3
+#define READY_TO_DUMP 4
+
+#define LEFT_FRONT_BUMPER        4
+#define RIGHT_FRONT_BUMPER       5
+#define LEFT_BACK_BUMPER         6
+#define RIGHT_BACK_BUMPER        7
 
 /*---------------- Module Defines ---------------------------*/
 
 /*---------------- Module Function Prototypes ---------------*/
-unsigned char TestForKey(void);
-void RespToKey(void);
 int pause = 10; // defining the microsecond delay between direction changes
 unsigned char TestTimerExpired(void);
+char forwardspeed = 5;
+int ExchangeButtonCounter = 0;
+static int state = 1;
 
 /*---------------- Arduino Main Functions -------------------*/
 void setup() {
   Serial.begin(9600);
-  Serial.println("The MotorsTest_1 program has started!");
+  Serial.println("The MotorForwardButtonTest program has started!");
   WinkleInit();
   //TMRArd_InitTimer(0, TIME_INTERVAL);
-
 }
 
 void loop() {
-  if (TestForKey());
-    RespToKey();
- 
- //turnRight
-    
 
-  //    LeftMtrSpeed(5);
-  //    RightMtrSpeed(-5);
+  switch(state) {
+    case(DRIVING_TOWARDS_EXCHANGE) :
+      if(LEFT_FRONT_BUMPER && RIGHT_FRONT_BUMPER == 1) {  // both front bumpers are unhit
+      Serial.println("Moving forward, no bumps");
+      DriveForward(forwardspeed);
+      }
+      if(LEFT_FRONT_BUMPER && RIGHT_FRONT_BUMPER == 0) {  // both front bumpers hit
+      Serial.println("Aligned with exchange");
+      DriveForward(0);
+      ExchangeButtonCounter = ExchangeButtonCounter + 1;
+      state = PRESSING;
+      }
+//      if(LEFT_FRONT_BUMPER == 1 && RIGHT_FRONT_BUMPER == 0) {  // front right hit, front left not, need to twist
+//      Serial.println("Right corner hit")
+//      LeftMtrSpeed(forwardspeed);
+//      RightMtrSpeed(0);
+////      ExchangeButtonCounter = ExchangeButtonCounter + 1;
+//      state = ADJUSTING
+//      }
+//      if(LEFT_FRONT_BUMPER == 0 && RIGHT_FRONT_BUMPER == 1) {  // front left hit, front right not, need to twist
+//      Serial.println("Left corner hit")
+//      RightMtrSpeed(forwardspeed);
+//      LeftMtrSpeed(0);
+////      ExchangeButtonCounter = ExchangeButtonCounter + 1;
+//      state = ADJUSTING
+//      }
+      break;
+  case(PRESSING) :
+    if (ExchangeButtonCounter < 2) {
+      DriveForward(-1 * forwardspeed);  // drive in reverse
+      delay(20);
+      DriveForward(forwardspeed);
+      state = DRIVING_TOWARDS_EXCHANGE;
+    }
+      else DriveForward(-1 * forwardspeed); // backwards to the server
+      state = DRIVING_TOWARDS_SERVER;
+  case(DRIVING_TOWARDS_SERVER) :
+      if(LEFT_BACK_BUMPER && RIGHT_BACK_BUMPER == 0); {  // both front bumpers hit
+      Serial.println("Aligned with server");
+      DriveForward(0);
+      state = READY_TO_DUMP;
+      }
+  }
 }
 
 /*---------------- Module Functions -------------------------*/
 
-
-
-void RespToKey(void) {
-  unsigned char theKey;
-  
-  theKey = Serial.read();
-  
-  if(theKey == 'f') {
-    Serial.println("I'm going forward!");
-      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
-      RightMtrSpeed(0);
-      delayMicroseconds(pause);
-      LeftMtrSpeed(10);
-      RightMtrSpeed(10);
-  }
-  
-  else if (theKey == 'b') {
-      Serial.println("I'm going backwards!");
-      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
-      RightMtrSpeed(0);
-      delayMicroseconds(pause);
-      LeftMtrSpeed(-10);
-      RightMtrSpeed(-10);
-  }
-  
-  else if (theKey == 'x') {
-      Serial.println("I'm stopping!");
-      LeftMtrSpeed(0);
-      RightMtrSpeed(0);
-  }
-  
-  else if (theKey == 'w') {
-      Serial.println("I'm going forward slowly!");
-      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
-      RightMtrSpeed(0);
-      delayMicroseconds(pause);
-      LeftMtrSpeed(5);
-      RightMtrSpeed(5);
-  }
-  
-  else if (theKey == 'q') {
-      Serial.println("I'm going backwards slowly!");
-      LeftMtrSpeed(-5);
-      RightMtrSpeed(-5);
-  }
-  
-  else if (theKey == 'l') {
-      Serial.println("I'm turning left!");
-      //start timer for some amount of time - we need to test to figure out
-      //exactly how long it takes our motors to turn 90deg
-      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
-      RightMtrSpeed(0);
-      delayMicroseconds(pause);
-      LeftMtrSpeed(-5);
-      RightMtrSpeed(5);
-      //timer expires
-    //  LeftMtrSpeed(10);
-     // RightMtrSpeed(10);
-  }
-  
-  else if (theKey == 'r') {
-      Serial.println("I'm turning right!");
-      //start timer for some amount of time - we need to test to figure out
-      //exactly how long it takes our motors to turn 90deg
-      LeftMtrSpeed(0); // motors not meant for instantaneous reverse so including a brief stop
-      RightMtrSpeed(0);
-      delayMicroseconds(pause);
-      LeftMtrSpeed(5);
-      RightMtrSpeed(-5);
-      //timer expires
-   //   LeftMtrSpeed(10);
-     // RightMtrSpeed(10);
-  }
-  
-}
 
 
 
