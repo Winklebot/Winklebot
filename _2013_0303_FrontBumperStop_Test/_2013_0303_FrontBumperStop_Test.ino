@@ -29,7 +29,7 @@ void setup() {
 }
 
 void loop() {
-  if (LFB == 1 && RFB == 1) {    //check the switches to see which on/off state corresponds to 0 and 1
+  if (LFB == 0 && RFB == 0) {    //check the switches to see which on/off state corresponds to 0 and 1
     Stop();
   }
     
