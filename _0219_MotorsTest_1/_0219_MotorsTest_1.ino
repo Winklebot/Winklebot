@@ -9,8 +9,8 @@
              press 'b': drive backwards
              press 'x': stop
              
-             press 'fs': drive forward, but slowly
-             press 'bs': drive backward, but slowly
+             press 's': drive forward, but slowly
+             press 'w': drive backward, but slowly
 
 
              press 'r': turn 90deg right, then drive straight
@@ -61,8 +61,8 @@ void loop() {
  //turnRight
     
 
-      LeftMtrSpeed(5);
-      RightMtrSpeed(-5);
+  //    LeftMtrSpeed(5);
+  //    RightMtrSpeed(-5);
 }
 
 /*---------------- Module Functions -------------------------*/
