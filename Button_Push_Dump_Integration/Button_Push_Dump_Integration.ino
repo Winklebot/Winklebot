@@ -1,24 +1,24 @@
 /**************************************************************
-  File:      MotorForwardButtonTest.pde 
-  Contents:  This program drives the bot towards the server button
-            and drives the bot into the server button, then moves the bot
-            back and forth a set number of times to mine desired # of coins
+  File:      Button_Push_Dump_Integration.pde 
+  Contents:  Integrates the button pushing sequence and the backup/dump sequence.
+            This program moves the bot into the exchange a set number of times,
+             then back from the server to the large exchange and drops the chips 
+             if both bumpers sense walls.
+             
+             Initial condition: Back of the bot is facing the server button. Bot is on the
+             tape line and reasonably straight. (assumption: this code will pick up after 
+             the initial beacon location gets the bot to the tape, and then the focused beacon 
+             sensor circuit stops the bot close to straight-on the server)
              
   Notes:    Target: Arduino UNO R1 & R2
             Arduino IDE version: 0022
-   
+            
   History:
   when      who  what/why
   ----      ---  -------------------------------------------
-  02/19/14  ECM  program created for initial motor test
-  03/04/14  HMK  used initial motor test code as a basis for button pusher code
-  03/05/14  HMK  removed Winklelib.h to debug code more easily. Copy/pasted relevant 
-                   parts of library into module functions instead.
-                   Successful test
-**************************************************************/
-
-/*---------------- Includes ---------------------------------*/
-//#include <Winklelib.h>
+  03/6/14  HMK  program created
+  
+  /*---------------- Includes ---------------------------------*/
 #include <Timers.h>
 #include <Servo.h>
 
@@ -31,28 +31,28 @@
 #define PREPARING_BUT_PRESS      103
 #define ADJUSTING                104
 #define COUNTING_BUTTONS         105
-#define MOVING_TOWARDS_EXCHANGE  301 // leads to David's servo dumping code
+#define MOVING_TOWARDS_EXCHANGE  301 // servo dumping code
+#define DUMPING                  302
 
 // DEFINE TERMS
 #define BUMPERHIT                0
 #define BUMPEROPEN               1
 #define SPEED_SCALER             25 // map 0-255 PWM settings to 0-10 speed settings
-#define TRAVELING_SPEED_LEFT     9
-#define TRAVELING_SPEED_RIGHT    7
-#define TRAVELING_SPEED          8 // Left is speed + 1, right is speed - 1
+//#define TRAVELING_SPEED_LEFT     9
+//#define TRAVELING_SPEED_RIGHT    7
+#define NOMINAL_TRAVELING_SPEED          8 // Left is speed + 1, right is speed - 1
 
+#define DUMP_ANGLE               90
+#define RESET_RAMP               9
+#define DUMP_TIME                2500
 
-#define SERVER_BEACON_MICROS     1176
-#define EXCHANGE_BEACON_MICRO	 333
-#define NO_SIGNAL_MICROS         2000
 #define BEACON_INTERRUPT_NUMBER  1 //number, not pin
 #define TAPE_INTERRUPT_NUMBER    0 //number, not pin
 
 // DEFINE TIMERS
 #define NO_SIGNAL_TIMER              0      //Lucas' timers, to avoid duplicates
 #define SEARCHING_FOR_EXCHANGE_TIMER 1
-#define MOVING_TOWARDS_TAPE_TIMER    2
-#define PREPARING_BUT_PRESS_TIMER     15     
+#define MOVING_TOWARDS_TAPE_TIMER    2     
 #define PREPARING_BUT_PRESS_MILLIS    333
 #define BEACON_INTERRUPT_NUMBER  1
 #define TAPE_INTERRUPT_NUMBER    0 
@@ -70,31 +70,27 @@
 #define R_MOTOR_EN               11
 #define pin_Servo	         10		
 
- //available pins: 12, all the analog pins (note: pins 0 and 1 should remain unused)
-
-int state = FINDING_SERVER;
-int ExchangeButtonCounter = 0;
+ //available pins: 13, A0-4 (note: pins 9, 0 and 1 should remain unused)
 
 int LFB = BUMPEROPEN;  // set initial bumper reading to open
 int RFB = BUMPEROPEN;
 int LBB = BUMPEROPEN;
 int RBB = BUMPEROPEN;
 
-int coinMax = 4; // number of button presses that switch states
-//int pause = 10; // defining the microsecond delay between direction changes
+int coinMax = 3; // total number of button presses needed to get desired coins (2 coins = 3 presses)
+                // using "<=" this number for count threshold, so should avoid an off-by-one error
 
-boolean onTape = false;
-boolean tapeFlag = false;
+int state = FINDING_SERVER;
+int ExchangeButtonCounter = 0;
+int dumped = 0;
 
-volatile unsigned long previousTime = 0;
-volatile unsigned long period = NO_SIGNAL_MICROS; 
-volatile boolean risingEdgeFlag = false; 
-boolean beaconFoundFlag = false;
-int pause = 4;
+unsigned char TestTimerExpired(void);
+void DropCoins(void);
 
 /*---------------- Module Function Prototypes ---------------*/
 
 void rise_detected();
+Servo myservo;
 
 /*---------------- Arduino Main Functions -------------------*/
 void setup() {
@@ -104,48 +100,43 @@ void setup() {
   pinMode(R_MOTOR_DIR, OUTPUT);
   pinMode(L_MOTOR_EN, OUTPUT);
   pinMode(R_MOTOR_EN, OUTPUT);
+  pinMode(pin_Servo, OUTPUT);
   pinMode(LEFT_FRONT_BUMPER, INPUT);
   pinMode(RIGHT_FRONT_BUMPER, INPUT);
   pinMode(LEFT_BACK_BUMPER, INPUT);
   pinMode(RIGHT_BACK_BUMPER, INPUT);
   pinMode(TAPE_INPUT_PIN, INPUT);
   pinMode(BEACON_INPUT_PIN, INPUT);
-  attachInterrupt(TAPE_INTERRUPT_NUMBER, rise_detected, RISING);
-  attachInterrupt(BEACON_INTERRUPT_NUMBER, rise_detected, RISING);
-//  LeftMtrSpeed(-5);
-//  RightMtrSpeed(-5);
+
+  myservo.attach(10);
+  myservo.write(9);
+  
 }
 
 void loop() { 
   switch(state) {
     case(MOVING_TOWARDS_TAPE):
 //    INSERT LUCAS CODE
-//      if(tapeFlag){
-//        tapeFlag = false;
-//        if(onTape == true){
-//          Stop()
-//        }  
-//      }
       ChangeState(FINDING_SERVER);
       break;
   case(FINDING_SERVER):
-   // INSERT LUCAS CODE
-      DriveBackward(TRAVELING_SPEED);
+//    INSERT LUCAS CODE
+      DriveBackwardCorrected(NOMINAL_TRAVELING_SPEED);
       ChangeState(ADJUSTING);
       break;
   case(ADJUSTING):
       CheckBumpers();
-     if(LBB != RBB){
-      if(LBB == BUMPEROPEN && RBB == BUMPERHIT) {  // right back hit, left back not, need to twist
-      LeftMtrSpeed(-1 * TRAVELING_SPEED_LEFT);
+     if(LBB != RBB){ // if bumpers are not the same, then only one side hit wall
+      if((LBB == BUMPEROPEN) && (RBB == BUMPERHIT)) {  // right back hit, left back not, need to twist left towards wall
+      LeftMtrSpeed(-1 * NOMINAL_TRAVELING_SPEED);
       RightMtrSpeed(0);
       }
-      else {  // left back hit, right back not, need to twist
-      RightMtrSpeed(-1 * TRAVELING_SPEED_RIGHT);
+      else {  // left back hit, right back not, need to twist right towards wall
+      RightMtrSpeed(-1 * NOMINAL_TRAVELING_SPEED);
       LeftMtrSpeed(0);
       }
      }
-     if(LBB == BUMPERHIT && RBB == BUMPERHIT) {
+     if((LBB == BUMPERHIT) && (RBB == BUMPERHIT)) {
       Serial.println("PRESSING_SEQUENCE");
       ChangeState(PRESSING_SEQUENCE);
      }
@@ -154,56 +145,46 @@ void loop() {
      ButtonPressingSequence();
      ChangeState(MOVING_TOWARDS_EXCHANGE);
       break;
-//  case(MOVING_TOWARDS_EXCHANGE) :
-//      if(LFB != RFB){
-//      ChangeState(ADJUSTING);
-//      }
-// case(ADJUSTING):
-//   if(LFB != RFB){
-//     if(LFB == BUMPEROPEN && RFB == BUMPERHIT) {  // right back hit, left back not, need to twist
-//      LeftMtrSpeed(TRAVELING_SPEED);
-//      RightMtrSpeed(0);
-//      }
-//      else {  // left back hit, right back not, need to twist
-//      Serial.println("Left corner hit");
-//      RightMtrSpeed(TRAVELING_SPEED);
-//      LeftMtrSpeed(0);
-//      }
-//      Serial.println("WAITING_TO_DUMP");
-//      ChangeState(WAITING_TO_DUMP);
-//   }
-//      break;
+  case(MOVING_TOWARDS_EXCHANGE) :
+    CheckBumpers();
+    if ((LFB == BUMPERHIT) && (RFB == BUMPERHIT) && (dumped == 0)) {     //both rear bumpers depressed, stop motors
+      dumped = 1;
+      DriveForwardCorrected(0);
+      DropCoins();
+      Serial.println("both bumpers pressed, dumped is ");
+      Serial.println(dumped);
+      ChangeState(DUMPING);
+    }
+    else if ((LFB == BUMPERHIT) && (dumped == 0)) {           //left rear bumper depressed, run only right motor
+       LeftMtrSpeed(0);
+       RightMtrSpeed(NOMINAL_TRAVELING_SPEED);
+    }
+    else if ((RFB == BUMPERHIT) && (dumped == 0)) {           //right rear bumper depressed, run only left motor
+       RightMtrSpeed(0);
+       LeftMtrSpeed(NOMINAL_TRAVELING_SPEED);
+    }
+    break;
       
   }
 }
 
 /*---------------- Module Functions -------------------------*/
 
-// CHECK FOR TAPE
-void rise_detected() {
-  onTape = true;
-  tapeFlag = true;
-//  DriveForward(0);
-}  
-
-unsigned char CheckButtonTimer(void){
-  return (unsigned char)TMRArd_IsTimerExpired(PREPARING_BUT_PRESS_TIMER);
-  }  
+void DropCoins(void) {
+   Serial.println("dropping!");
+   myservo.write(90);
+   delay(2500);
+   myservo.write(9);
+}
 
 void ChangeState(int newState){
   Serial.print("Changing state to ");
   Serial.println(newState);  
   state = newState;
   SetMotors(newState);
-//  SetTimer(newState);
 }
 
-//void SetTimer(int newState){
-//  switch(newState){
-//    case(PRESSING_BUTTON):
-//      TMRArd_InitTimer(PREPARING_BUT_PRESS_TIMER, PREPARING_BUT_PRESS_MILLIS);
-//      break;
- 
+
 /******************************************************************************
   Function:    ButtonPressingSequence
   Contents:    Runs button pressing sequence
@@ -214,13 +195,13 @@ void ChangeState(int newState){
 void ButtonPressingSequence(){
    Serial.println("Button pressing!");
    ExchangeButtonCounter = 1; //button has already been pushed once
-   while (ExchangeButtonCounter < coinMax){
+   while (ExchangeButtonCounter <= coinMax){
       Serial.println("Driving forward");
-      DriveForward(TRAVELING_SPEED);  // drive forward, away from server
+      DriveForwardCorrected(NOMINAL_TRAVELING_SPEED);  // drive forward, away from server
       delay(PREPARING_BUT_PRESS_MILLIS);
       Serial.println("Driving backward");
-      DriveForward(0); 
-      DriveBackward(TRAVELING_SPEED);
+      DriveForwardCorrected(0); 
+      DriveBackwardCorrected(NOMINAL_TRAVELING_SPEED);
       delay(PREPARING_BUT_PRESS_MILLIS*2); // drive into button for twice the time spend driving away, to ensure you make contact
      if(LBB == BUMPERHIT || RBB == BUMPERHIT){
        ExchangeButtonCounter = ExchangeButtonCounter + 1;   
@@ -236,8 +217,8 @@ void ButtonPressingSequence(){
   Notes:    
 ******************************************************************************/
 void CheckBumpers(){
-//  LFB = digitalRead(LEFT_FRONT_BUMPER);
-//  RFB = digitalRead(RIGHT_FRONT_BUMPER);
+  LFB = digitalRead(LEFT_FRONT_BUMPER);
+  RFB = digitalRead(RIGHT_FRONT_BUMPER);
   LBB = digitalRead(LEFT_BACK_BUMPER);
   Serial.println(LBB);
   RBB = digitalRead(RIGHT_BACK_BUMPER);
@@ -252,44 +233,21 @@ void CheckBumpers(){
   Notes:    
 ******************************************************************************/
 void SetMotors(int newState){
-//   char rightSpeed;
-//   char leftSpeed;
    switch(newState) { 
      case(MOVING_TOWARDS_TAPE) :
-       DriveBackward(TRAVELING_SPEED);
+       DriveBackwardCorrected(NOMINAL_TRAVELING_SPEED);
        break;
     case(FINDING_SERVER):
-      DriveBackward(TRAVELING_SPEED);
+      DriveBackwardCorrected(NOMINAL_TRAVELING_SPEED);
       break;
     case(PRESSING_SEQUENCE):
       Stop();
       break;
     case(MOVING_TOWARDS_EXCHANGE):
-      DriveForward(TRAVELING_SPEED);
+      DriveForwardCorrected(NOMINAL_TRAVELING_SPEED);
       break;
- //   case(ADJUSTING):
    }
 }
-
-/******************************************************************************
-  Function:    AdjustOrientation
-  Contents:    Straightens bot if hits destination with a corner
-  Parameters:  state
-  Returns:     Nothing
-  Notes:    
-******************************************************************************/
-//void AdjustOrientation(int newState2){
-//   switch(newState2) { 
-//    case(BACKING_TOWARDS_SERVER):
-//      if(LBB != RBB)
-//      ChangeState(ADJUSTING);
-//      break;
-//    case(MOVING_TOWARDS_EXCHANGE):
-//      if(LFB != RFB)
-//      ChangeState(ADJUSTING);
-//      break;
-//   }
-//}
 
 /******************************************************************************
   Function:    Drive
@@ -298,11 +256,11 @@ void SetMotors(int newState){
   Returns:     Nothing
   Notes:    
 ******************************************************************************/ 
-void DriveBackward(char newSpeed){  // Ideal speed in testing was Right Motor 9, left motor 7
+void DriveBackwardCorrected(char newSpeed){  // Ideal speed in testing was Right Motor 9, left motor 7
 	LeftMtrSpeed(-1 * (newSpeed + 1));
 	RightMtrSpeed(-1 * (newSpeed - 1));
 }
-void DriveForward(char newSpeed){
+void DriveForwardCorrected(char newSpeed){
 	LeftMtrSpeed((newSpeed + 1));
 	RightMtrSpeed((newSpeed - 1));
 }
@@ -328,3 +286,4 @@ void RightMtrSpeed(char newSpeed){
   }
   analogWrite(R_MOTOR_EN,SPEED_SCALER*abs(newSpeed));
 }
+
