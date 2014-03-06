@@ -17,14 +17,14 @@
 
 /*----------------------------- Module Defines ------------------------------*/
  #define L_MOTOR_DIR           8
- #define L_MOTOR_EN            9
+ #define L_MOTOR_EN            6
  #define R_MOTOR_DIR          12		//moved this from 10 to 12 in order to give the pin_Servo 9 or 10	
  
  #define R_MOTOR_EN           11
 
  #define LEFT_FRONT_BUMPER        4
  #define RIGHT_FRONT_BUMPER       5
- #define LEFT_BACK_BUMPER         6
+ #define LEFT_BACK_BUMPER         A5
  #define RIGHT_BACK_BUMPER        7 
 
  #define TAPE_INPUT_PIN           2

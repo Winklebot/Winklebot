@@ -8,7 +8,7 @@
 
 #define LEFT_FRONT_BUMPER        4
 #define RIGHT_FRONT_BUMPER       5
-#define LEFT_BACK_BUMPER         6
+#define LEFT_BACK_BUMPER         A5
 #define RIGHT_BACK_BUMPER        7
 
 
@@ -17,7 +17,7 @@ void setup() {
   Serial.println("The Bumpers program has started!");
   pinMode(4,INPUT);
   pinMode(5,INPUT);
-  pinMode(6,INPUT);
+  pinMode(A5,INPUT);
   pinMode(7,INPUT);
   WinkleInit();
 }
@@ -35,7 +35,7 @@ void loop() {
     Serial.println(RFB);
   }
 
-  int LBB = digitalRead(6);
+  int LBB = digitalRead(A5);
   if(LBB == 0){
     Serial.println("Left Back Bumper");
     Serial.println(LBB);
