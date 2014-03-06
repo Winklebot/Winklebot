@@ -36,7 +36,7 @@
 #define BUMPERHIT                0
 #define BUMPEROPEN               1
 #define SPEED_SCALER             25 // map 0-255 PWM settings to 0-10 speed settings
-#define TRAVELING_SPEED          4
+#define TRAVELING_SPEED          8
 
 #define SERVER_BEACON_MICROS     1176
 #define EXCHANGE_BEACON_MICRO	 333
@@ -68,7 +68,7 @@
 
  //available pins: 12, all the analog pins (note: pins 0 and 1 should remain unused)
 
-int state = PRESSING_SEQUENCE;
+int state = FINDING_SERVER;
 int ExchangeButtonCounter = 0;
 
 int LFB = BUMPEROPEN;  // set initial bumper reading to open
@@ -126,6 +126,7 @@ void loop() {
       break;
   case(FINDING_SERVER):
    // INSERT LUCAS CODE
+      DriveBackward(TRAVELING_SPEED);
       ChangeState(ADJUSTING);
       break;
   case(ADJUSTING):
