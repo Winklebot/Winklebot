@@ -26,9 +26,11 @@
 #define DUMP_TIME     2500
 Servo myservo;
 
+
 /*---------------- Module Function Prototypes ---------------*/
 
 int pause = 10; // defining the microsecond delay between direction changes
+int dumped = 0;
 unsigned char TestTimerExpired(void);
 void DropCoins(void);
 
@@ -44,29 +46,31 @@ void setup() {
   
   myservo.attach(10);
   myservo.write(9);
-  WinkleInit();
+ // WinkleInit();
   //TMRArd_InitTimer(0, TIME_INTERVAL);
-  LeftMtrSpeed(4);
-  RightMtrSpeed(4);
+  LeftMtrSpeed(5);
+  RightMtrSpeed(5);
 }
 
 void loop() {
-  int LBB = digitalRead(6);
-  int RBB = digitalRead(7);
+  int LFB = digitalRead(4);
+  int RFB = digitalRead(5);
   
-  if ((LBB == 0) && (RBB == 0)) {     //both rear bumpers depressed, stop motors
+  if ((LFB == 0) && (RFB == 0) && (dumped == 0)) {     //both rear bumpers depressed, stop motors
+    dumped = 1;
+    LeftMtrSpeed(0);
+    RightMtrSpeed(0);
     DropCoins();
-    Stop();
   }
   
-  else if (LBB == 0) {           //left rear bumper depressed, run only right motor
+  else if ((LFB == 0) && (dumped == 0)) {           //left rear bumper depressed, run only right motor
      LeftMtrSpeed(0);
-     RightMtrSpeed(4);
+     RightMtrSpeed(5);
   }
   
-  else if (RBB == 0) {           //right rear bumper depressed, run only left motor
+  else if ((RFB == 0) && (dumped == 0)) {           //right rear bumper depressed, run only left motor
      RightMtrSpeed(0);
-     LeftMtrSpeed(4);
+     LeftMtrSpeed(5);
   }
 }
 
