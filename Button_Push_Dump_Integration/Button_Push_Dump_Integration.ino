@@ -53,7 +53,7 @@
 #define NO_SIGNAL_TIMER              0      //Lucas' timers, to avoid duplicates
 #define SEARCHING_FOR_EXCHANGE_TIMER 1
 #define MOVING_TOWARDS_TAPE_TIMER    2     
-#define PREPARING_BUT_PRESS_MILLIS    333
+#define BUTTON_PRESS_MILLIS    333
 #define BEACON_INTERRUPT_NUMBER  1
 #define TAPE_INTERRUPT_NUMBER    0 
 
@@ -198,11 +198,11 @@ void ButtonPressingSequence(){
    while (ExchangeButtonCounter <= coinMax){
       Serial.println("Driving forward");
       DriveForwardCorrected(NOMINAL_TRAVELING_SPEED);  // drive forward, away from server
-      delay(PREPARING_BUT_PRESS_MILLIS);
+      delay(BUTTON_PRESS_MILLIS);
       Serial.println("Driving backward");
       DriveForwardCorrected(0); 
       DriveBackwardCorrected(NOMINAL_TRAVELING_SPEED);
-      delay(PREPARING_BUT_PRESS_MILLIS*2); // drive into button for twice the time spend driving away, to ensure you make contact
+      delay(BUTTON_PRESS_MILLIS*2); // drive into button for twice the time spend driving away, to ensure you make contact
      if(LBB == BUMPERHIT || RBB == BUMPERHIT){
        ExchangeButtonCounter = ExchangeButtonCounter + 1;   
      }
