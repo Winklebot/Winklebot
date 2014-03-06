@@ -22,10 +22,10 @@
  
  #define R_MOTOR_EN           11
 
-// #define LEFT_FRONT_BUMPER        4
-// #define RIGHT_FRONT_BUMPER       5
-// #define LEFT_BACK_BUMPER         6
-// #define RIGHT_BACK_BUMPER        7 
+ #define LEFT_FRONT_BUMPER        4
+ #define RIGHT_FRONT_BUMPER       5
+ #define LEFT_BACK_BUMPER         6
+ #define RIGHT_BACK_BUMPER        7 
 
  #define TAPE_INPUT_PIN           2
  #define HIGH_RANGE_BEACON_INPUT_PIN         3
