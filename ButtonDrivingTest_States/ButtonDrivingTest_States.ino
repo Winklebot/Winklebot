@@ -49,7 +49,7 @@
 #define SEARCHING_FOR_EXCHANGE_TIMER 1
 #define MOVING_TOWARDS_TAPE_TIMER    2
 #define PREPARING_BUT_PRESS_TIMER     15     
-#define PREPARING_BUT_PRESS_MILLIS    500
+#define PREPARING_BUT_PRESS_MILLIS    333
 #define BEACON_INTERRUPT_NUMBER  1
 #define TAPE_INTERRUPT_NUMBER    0 
 
@@ -76,7 +76,7 @@ int RFB = BUMPEROPEN;
 int LBB = BUMPEROPEN;
 int RBB = BUMPEROPEN;
 
-int coinMax = 3; // number of button presses that switch states
+int coinMax = 4; // number of button presses that switch states
 //int pause = 10; // defining the microsecond delay between direction changes
 
 boolean onTape = false;
@@ -130,6 +130,7 @@ void loop() {
       ChangeState(ADJUSTING);
       break;
   case(ADJUSTING):
+      CheckBumpers();
      if(LBB != RBB){
       if(LBB == BUMPEROPEN && RBB == BUMPERHIT) {  // right back hit, left back not, need to twist
       LeftMtrSpeed(-1 * TRAVELING_SPEED);
@@ -140,7 +141,7 @@ void loop() {
       LeftMtrSpeed(0);
       }
      }
-     else {
+     if(LBB == BUMPERHIT && RBB == BUMPERHIT) {
       Serial.println("PRESSING_SEQUENCE");
       ChangeState(PRESSING_SEQUENCE);
      }
@@ -207,17 +208,18 @@ void ChangeState(int newState){
   Notes:    
 ******************************************************************************/
 void ButtonPressingSequence(){
+   Serial.println("Button pressing!");
+   ExchangeButtonCounter = 1; //button has already been pushed once
    while (ExchangeButtonCounter < coinMax){
-     DriveBackward(TRAVELING_SPEED);
+      Serial.println("Driving forward");
+      DriveForward(TRAVELING_SPEED);  // drive forward, away from server
+      delay(PREPARING_BUT_PRESS_MILLIS);
+      Serial.println("Driving backward");
+      DriveForward(0); 
+      DriveBackward(TRAVELING_SPEED);
+      delay(PREPARING_BUT_PRESS_MILLIS);
      if(LBB == BUMPERHIT || RBB == BUMPERHIT){
-     ExchangeButtonCounter = ExchangeButtonCounter + 1;
-     TMRArd_InitTimer(PREPARING_BUT_PRESS_TIMER, PREPARING_BUT_PRESS_MILLIS); 
-     DriveForward(TRAVELING_SPEED);  // drive forward, away from server
-      if (CheckButtonTimer()){
-        TMRArd_StopTimer(PREPARING_BUT_PRESS_TIMER);
-        TMRArd_ClearTimerExpired(PREPARING_BUT_PRESS_TIMER);
-        DriveBackward(TRAVELING_SPEED);
-        }
+       ExchangeButtonCounter = ExchangeButtonCounter + 1;   
      }
   }
 }
@@ -230,10 +232,12 @@ void ButtonPressingSequence(){
   Notes:    
 ******************************************************************************/
 void CheckBumpers(){
-  LFB = digitalRead(LEFT_FRONT_BUMPER);
-  RFB = digitalRead(RIGHT_FRONT_BUMPER);
+//  LFB = digitalRead(LEFT_FRONT_BUMPER);
+//  RFB = digitalRead(RIGHT_FRONT_BUMPER);
   LBB = digitalRead(LEFT_BACK_BUMPER);
+  Serial.println(LBB);
   RBB = digitalRead(RIGHT_BACK_BUMPER);
+  Serial.println(RBB);
 }
     
 /******************************************************************************
@@ -291,12 +295,12 @@ void SetMotors(int newState){
   Notes:    
 ******************************************************************************/ 
 void DriveBackward(char newSpeed){
-	LeftMtrSpeed(-1 * newSpeed);
-	RightMtrSpeed(-1 * newSpeed);
+	LeftMtrSpeed(-1 * 9);
+	RightMtrSpeed(-1 * 7);
 }
 void DriveForward(char newSpeed){
-	LeftMtrSpeed(newSpeed);
-	RightMtrSpeed(newSpeed);
+	LeftMtrSpeed(9);
+	RightMtrSpeed(7);
 }
 void Stop() {
   LeftMtrSpeed(0);
