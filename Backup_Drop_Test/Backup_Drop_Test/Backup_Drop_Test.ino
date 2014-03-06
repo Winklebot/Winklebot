@@ -48,8 +48,7 @@ void setup() {
   myservo.write(9);
  // WinkleInit();
   //TMRArd_InitTimer(0, TIME_INTERVAL);
-  LeftMtrSpeed(5);
-  RightMtrSpeed(5);
+  DriveForward(5);
 }
 
 void loop() {
