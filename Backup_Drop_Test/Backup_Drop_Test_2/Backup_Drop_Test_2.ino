@@ -61,7 +61,9 @@ void setup() {
 
 //  WinkleInit();
   //TMRArd_InitTimer(0, TIME_INTERVAL);
-  DriveForward(5);
+ // DriveForward(9.5);
+   LeftMtrSpeed(9);
+   RightMtrSpeed(7);
 }
 
 void loop() {
@@ -78,12 +80,12 @@ void loop() {
   
   else if ((LFB == 0) && (dumped == 0)) {           //left rear bumper depressed, run only right motor
      LeftMtrSpeed(0);
-     RightMtrSpeed(5);
+     RightMtrSpeed(7);
   }
   
   else if ((RFB == 0) && (dumped == 0)) {           //right rear bumper depressed, run only left motor
      RightMtrSpeed(0);
-     LeftMtrSpeed(5);
+     LeftMtrSpeed(7);
   }
 }
 
