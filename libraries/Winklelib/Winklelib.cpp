@@ -17,7 +17,9 @@
 
 /*----------------------------- Module Defines ------------------------------*/
  #define L_MOTOR_DIR           8
+
  #define L_MOTOR_EN            6  // changed from 9 because servo library utilizes 9 and 10
+
  #define R_MOTOR_DIR          12		//moved this from 10 to 12 in order to give the pin_Servo 9 or 10	
  
  #define R_MOTOR_EN           11

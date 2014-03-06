@@ -175,7 +175,7 @@ void SetMotors(int newState){
      case(SEARCHING_FOR_SERVER):
         switch(orientation){
           // orientation is unknown, spinning front right, back left
-          case(UNKNOWN_ORIENTATION) 
+          case(UNKNOWN_ORIENTATION) :
             SpinRight(SCANNING_SPEED);
             break;
           // orientation has been found, spinning front left, back right to return to server orientation
