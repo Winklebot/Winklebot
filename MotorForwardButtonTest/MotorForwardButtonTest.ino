@@ -54,71 +54,73 @@ void setup() {
   pinMode(RIGHT_FRONT_BUMPER, INPUT);
   pinMode(LEFT_BACK_BUMPER, INPUT);
   pinMode(RIGHT_BACK_BUMPER, INPUT);
- // WinkleInit();
+  WinkleInit();
+  LeftMtrSpeed(-5);
+  RightMtrSpeed(-5);
   //TMRArd_InitTimer(0, TIME_INTERVAL);
 }
 
 void loop() {
-  
-  switch(state) {
-    CheckLFBumperStatus();
-    CheckRFBumperStatus();
-    CheckLBBumperStatus();
-    CheckRBBumperStatus();
-    case(BACKING_TOWARDS_SERVER):
-      if(LBB == BUMPEROPEN && RBB == BUMPEROPEN) {  // both back bumpers are unhit
-      Serial.println("Moving back to server, no bumps");
-      LeftMtrSpeed(revbotspeed);
-      RightMtrSpeed(revbotspeed);
-  //    state = BACKING_TOWARDS_SERVER;
-      }
-      if(LBB == BUMPERHIT && RBB == BUMPERHIT) {  // both rear bumpers hit
- //     if(LBB == BUMPERHIT || RBB == BUMPERHIT) {  // one of rear bumpers hit
-      Serial.println("Aligned with exchange");
-      DriveForward(0);
-      ExchangeButtonCounter = ExchangeButtonCounter + 1;
-      state = PRESSING;
-      }
-//      if(LBB == BUMPEROPEN && RBB == BUMPERHIT) {  // right back hit, left back not, need to twist
-//      Serial.println("Right corner hit");
-//      LeftMtrSpeed(revbotspeed);
-//      RightMtrSpeed(0);
-//      ExchangeButtonCounter = ExchangeButtonCounter + 1;
-//      state = ADJUSTING;
+//  
+//  switch(state) {
+//    CheckLFBumperStatus();
+//    CheckRFBumperStatus();
+//    CheckLBBumperStatus();
+//    CheckRBBumperStatus();
+//    case(BACKING_TOWARDS_SERVER):
+//      if(LBB == BUMPEROPEN && RBB == BUMPEROPEN) {  // both back bumpers are unhit
+//      Serial.println("Moving back to server, no bumps");
+//      LeftMtrSpeed(-5);
+//      RightMtrSpeed(-5);
+//  //    state = BACKING_TOWARDS_SERVER;
 //      }
-//      if(LBB == BUMPERHIT && RBB == BUMPEROPEN) {  // left back hit, right back not, need to twist
-//      Serial.println("Left corner hit");
-//      RightMtrSpeed(revbotspeed);
-//      LeftMtrSpeed(0);
-//      ExchangeButtonCounter = ExchangeButtonCounter + 1;
-//      state = ADJUSTING;
-//      }
-//      break;
-//  case(ADJUSTING) :
 //      if(LBB == BUMPERHIT && RBB == BUMPERHIT) {  // both rear bumpers hit
+// //     if(LBB == BUMPERHIT || RBB == BUMPERHIT) {  // one of rear bumpers hit
 //      Serial.println("Aligned with exchange");
-//      Stop();
+//      DriveForward(0);
+//      ExchangeButtonCounter = ExchangeButtonCounter + 1;
 //      state = PRESSING;
 //      }
-  case(PRESSING) :
-      DriveForward(botspeed);  // drive away from server
-      state = LEAVING_SERVER;
-  case(DRIVING_TOWARDS_EXCHANGE) :
-      if(LFB == BUMPERHIT && RFB == BUMPERHIT){  // both front bumpers hit the Exchange
-//      if(LFB == 0 || RFB == 0){  // one of front bumpers hit the Exchange
-      Serial.println("Hit server");
-      DriveForward(0);
-      state = READY_TO_DUMP;
-      }
-   case(LEAVING_SERVER):
-      if (ExchangeButtonCounter < coinmax){ // pushed button enough times to get total coins, head to exchange next
-      delay(500);
-      DriveForward(revbotspeed);
-      state = BACKING_TOWARDS_SERVER;
-     }
-       else // backwards to the server to get more coins
-       state = DRIVING_TOWARDS_EXCHANGE;
-  }
+////      if(LBB == BUMPEROPEN && RBB == BUMPERHIT) {  // right back hit, left back not, need to twist
+////      Serial.println("Right corner hit");
+////      LeftMtrSpeed(revbotspeed);
+////      RightMtrSpeed(0);
+////      ExchangeButtonCounter = ExchangeButtonCounter + 1;
+////      state = ADJUSTING;
+////      }
+////      if(LBB == BUMPERHIT && RBB == BUMPEROPEN) {  // left back hit, right back not, need to twist
+////      Serial.println("Left corner hit");
+////      RightMtrSpeed(revbotspeed);
+////      LeftMtrSpeed(0);
+////      ExchangeButtonCounter = ExchangeButtonCounter + 1;
+////      state = ADJUSTING;
+////      }
+////      break;
+////  case(ADJUSTING) :
+////      if(LBB == BUMPERHIT && RBB == BUMPERHIT) {  // both rear bumpers hit
+////      Serial.println("Aligned with exchange");
+////      Stop();
+////      state = PRESSING;
+////      }
+//  case(PRESSING) :
+//      DriveForward(botspeed);  // drive away from server
+//      state = LEAVING_SERVER;
+//  case(DRIVING_TOWARDS_EXCHANGE) :
+//      if(LFB == BUMPERHIT && RFB == BUMPERHIT){  // both front bumpers hit the Exchange
+////      if(LFB == 0 || RFB == 0){  // one of front bumpers hit the Exchange
+//      Serial.println("Hit server");
+//      DriveForward(0);
+//      state = READY_TO_DUMP;
+//      }
+//   case(LEAVING_SERVER):
+//      if (ExchangeButtonCounter < coinmax){ // pushed button enough times to get total coins, head to exchange next
+//      delay(500);
+//      DriveForward(revbotspeed);
+//      state = BACKING_TOWARDS_SERVER;
+//     }
+//       else // backwards to the server to get more coins
+//       state = DRIVING_TOWARDS_EXCHANGE;
+//  }
 }
 
 /*---------------- Module Functions -------------------------*/
