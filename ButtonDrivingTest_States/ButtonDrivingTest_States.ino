@@ -37,8 +37,6 @@
 #define BUMPEROPEN               1
 #define SPEED_SCALER             25 // map 0-255 PWM settings to 0-10 speed settings
 #define TRAVELING_SPEED          4
-#define TURNING_SPEED            4
-#define FORWARD_SPEED            7
 
 #define SERVER_BEACON_MICROS     1176
 #define EXCHANGE_BEACON_MICRO	 333
