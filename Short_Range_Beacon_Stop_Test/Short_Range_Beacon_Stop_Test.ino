@@ -13,7 +13,7 @@
 #include <Timers.h>
 /*---------------- Module Defines ---------------------------*/
 #define TAPE_INPUT_PIN 2
-#define SHORT_RANGE_BEACON_INPUT_PIN 3
+#define SHORT_RANGE_BEACON_INPUT_PIN 13
 #define BEACON_INTERRUPT_NUMBER 1
 #define TAPE_INTERRUPT_NUMBER 0  
   
@@ -23,10 +23,10 @@
 #define BEACON_ERROR 100
 
 #define SHORT_RANGE_BEACON_SIGNAL_TIMER 0
-#define SHORT_RANGE_BEACON_SIGNAL_TIME 2
+#define SHORT_RANGE_BEACON_SIGNAL_TIME 4
 
 #define TURNING_SPEED 4
-#define FORWARD_SPEED 7
+#define FORWARD_SPEED 9
 /*---------------- Module Function Prototypes ---------------*/
 void rise_detected();
 void UpdateSignal();
@@ -35,7 +35,7 @@ boolean CheckSignalPresence();
 volatile unsigned long previousTime = 0;
 volatile unsigned long period = NO_SIGNAL_MICROS; 
 volatile boolean risingEdgeFlag = false; 
-boolean beaconFoundFlag = false;
+//boolean beaconFoundFlag = false;
 int pause = 4;
 
 /*---------------- Arduino Main Functions -------------------*/
@@ -57,8 +57,9 @@ void loop() {
   boolean inRange = CheckSignalPresence();
   if(inRange){
     Serial.println("Beacon in range - moving forward ");
-    LeftMtrSpeed(FORWARD_SPEED);
-    RightMtrSpeed(FORWARD_SPEED);
+    LeftMtrSpeed(-1 * FORWARD_SPEED);
+    RightMtrSpeed(-1 * FORWARD_SPEED);
+    //beaconFoundFlag = false;
     
   }
   
@@ -71,8 +72,10 @@ void loop() {
 //never expire when a beacon is in range
 void UpdateSignal(){
   int signal = digitalRead(SHORT_RANGE_BEACON_INPUT_PIN);
-  // if we have a low then we must have encountered a falling edge so there is still a signal
-  if(signal == 0){
+  //Serial.println(signal);
+  // if we have a high then we must have encountered a rising edge so there is still a signal
+  if(signal == 1){ 
+   // Serial.println("updating signal");
     TMRArd_InitTimer(SHORT_RANGE_BEACON_SIGNAL_TIMER , SHORT_RANGE_BEACON_SIGNAL_TIME);
   }
 }
@@ -82,10 +85,12 @@ void UpdateSignal(){
 boolean CheckSignalPresence(){
    
   if(TMRArd_IsTimerExpired(SHORT_RANGE_BEACON_SIGNAL_TIMER)){
-     TMRArd_InitTimer(SHORT_RANGE_BEACON_SIGNAL_TIMER , SHORT_RANGE_BEACON_SIGNAL_TIME);
+    // TMRArd_InitTimer(SHORT_RANGE_BEACON_SIGNAL_TIMER , SHORT_RANGE_BEACON_SIGNAL_TIME);
+     // Serial.println("out of range");
      return false;
    }
   else{
+   // Serial.println("in range");
     return true;
   }
      
