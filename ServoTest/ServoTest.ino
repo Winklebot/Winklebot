@@ -46,10 +46,15 @@ void setup() {
 //  Serial.println("Starting ServoTest...");
 //  pinMode(SERVO, OUTPUT);
   myservo.attach(10);
+  myservo.write(9);
 }
 
 void loop() {  
+<<<<<<< HEAD
   myservo.write(0);
+=======
+  
+>>>>>>> FETCH_HEAD
 }
       
 /*---------------- Module Functions -------------------------*/
