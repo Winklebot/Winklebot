@@ -76,9 +76,17 @@ static unsigned int SharedWord;
 ******************************************************************************/
 void WinkleInit(void) {
   /* initialize motor control pins */
-  PORTB &= 0xF0;  // EN=0 (off) for both motors and also DIR=0 for both motors
-  DDRB |= 0x0F;   // make motor EN and DIR pins outputs
-  
+  //PORTB &= 0xF0;  // EN=0 (off) for both motors and also DIR=0 for both motors
+  //DDRB |= 0x0F;   // make motor EN and DIR pins outputs
+  pinMode(L_MOTOR_DIR , OUTPUT);
+  pinMode(R_MOTOR_DIR , OUTPUT);
+  pinMode(L_MOTOR_EN , OUTPUT);
+  pinMode(R_MOTOR_EN , OUTPUT);
+
+
+
+
+
   /* initialize bumper pins */
   //DDRD &= 0x0F;   // make bumper sensor pins inputs
 }
