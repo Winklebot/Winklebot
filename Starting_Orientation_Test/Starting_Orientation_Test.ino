@@ -168,30 +168,27 @@ void SetMotors(int newState){
    char rightSpeed;
    char leftSpeed;
    switch(newState) {
+     // turning front of the bot right, back left to find an exchange 
      case(SEARCHING_FOR_EXCHANGE_LEFT):
-       rightSpeed = SCANNING_SPEED;
-       leftSpeed = -1 * SCANNING_SPEED;
+       SpinRight(SCANNING_SPEED);
        break;
      case(SEARCHING_FOR_SERVER):
         switch(orientation){
-          case(UNKNOWN_ORIENTATION) :
-            rightSpeed = SCANNING_SPEED;
-            leftSpeed = -1 * SCANNING_SPEED;
+          // orientation is unknown, spinning front right, back left
+          case(UNKNOWN_ORIENTATION) 
+            SpinRight(SCANNING_SPEED);
             break;
+          // orientation has been found, spinning front left, back right to return to server orientation
           case(RIGHT_ORIENTATION) :
           case(LEFT_ORIENTATION) :
-            rightSpeed = -1 * SCANNING_SPEED;
-            leftSpeed = SCANNING_SPEED;
+            SpinLeft(SCANNING_SPEED);
             break;
         }
        break; 
      case(MOVING_TOWARDS_TAPE) :
-       rightSpeed = TRAVELING_SPEED;
-       leftSpeed = TRAVELING_SPEED;
+       DriveBackward(TRAVELING_SPEED);
        break;
    }
-   LeftMtrSpeed(leftSpeed);
-   RightMtrSpeed(rightSpeed);
 }
 
 
