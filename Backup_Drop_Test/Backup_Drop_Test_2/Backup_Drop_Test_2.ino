@@ -1,9 +1,10 @@
 /**************************************************************
   File:      Backup_Drop_Test.pde 
-  Contents:  This program executes a number of test sequences to 
-             ensure .
+  Contents:  This program moves the bot back from the server to the 
+             large exchange and drops the chips.
+  
              
-             if both bumpers sense walls, stop
+             if both bumpers sense walls, stop and drop
              
   Notes:    Target: Arduino UNO R1 & R2
             Arduino IDE version: 0022
@@ -29,6 +30,8 @@
 #define R_MOTOR_DIR          12 
 #define R_MOTOR_EN           11
 #define SPEED_SCALER  25
+#define RIGHT_FRONT_BUMPER 5  
+#define LEFT_FRONT_BUMPER  4
 
 Servo myservo;
 
@@ -62,19 +65,15 @@ void setup() {
 }
 
 void loop() {
-  int LFB = digitalRead(4);
-  int RFB = digitalRead(5);
+  int LFB = digitalRead(LEFT_FRONT_BUMPER);
+  int RFB = digitalRead(RIGHT_FRONT_BUMPER);
   
   if ((LFB == 0) && (RFB == 0) && (dumped == 0)) {     //both rear bumpers depressed, stop motors
     dumped = 1;
-    LeftMtrSpeed(0);
-    RightMtrSpeed(0);
+    DriveForward(0);
     DropCoins();
     Serial.println("both bumpers pressed, dumped is ");
     Serial.println(dumped);
-//    myservo.write(DUMP_ANGLE);
-//    delayMicroseconds(DUMP_TIME);
-//    myservo.write(RESET_RAMP);
   }
   
   else if ((LFB == 0) && (dumped == 0)) {           //left rear bumper depressed, run only right motor
@@ -87,10 +86,6 @@ void loop() {
      LeftMtrSpeed(5);
   }
 }
-
-//waiting for first bumper to hit
-//waiting for second bumper to hit
-//waiting for both bumpers to hit
 
 /*---------------- Module Functions -------------------------*/
 
