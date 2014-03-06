@@ -1,4 +1,3 @@
-
 /**************************************************************
   File:      MotorForwardButtonTest.pde 
   Contents:  This program drives the bot towards the server button
@@ -19,12 +18,15 @@
 #include <Servo.h>
 
 /*---------------- Module Defines ---------------------------*/
-#define BACKING_TOWARDS_SERVER   0
-#define PRESSING                 1
-#define DRIVING_TOWARDS_EXCHANGE 2
-#define READY_TO_DUMP            3
-#define LEAVING_SERVER           4
-#define ADJUSTING                5
+#define BACKING_TOWARDS_SERVER   1
+#define PRESSING                 2
+#define DRIVING_TOWARDS_EXCHANGE 3
+#define READY_TO_DUMP            4
+#define LEAVING_SERVER           5
+#define ADJUSTING                6
+
+#define BUMPERHIT                0
+#define BUMPEROPEN               1
 
 #define LEFT_FRONT_BUMPER        4
 #define RIGHT_FRONT_BUMPER       5
@@ -35,11 +37,12 @@
 int state = BACKING_TOWARDS_SERVER;
 unsigned char TestTimerExpired(void);
 char botspeed = 5;
+char revbotspeed = -5;
 int ExchangeButtonCounter = 0;
-int LFB;
-int RFB;
-int LBB;
-int RBB;
+int LFB = 1;
+int RFB = 1;
+int LBB = 1;
+int RBB = 1;
 int coinmax = 3; // number of button presses that switch states
 //int pause = 10; // defining the microsecond delay between direction changes
 
@@ -47,6 +50,10 @@ int coinmax = 3; // number of button presses that switch states
 void setup() {
   Serial.begin(9600);
   Serial.println("The MotorForwardButtonTest program has started!");
+  pinMode(LEFT_FRONT_BUMPER, INPUT);
+  pinMode(RIGHT_FRONT_BUMPER, INPUT);
+  pinMode(LEFT_BACK_BUMPER, INPUT);
+  pinMode(RIGHT_BACK_BUMPER, INPUT);
  // WinkleInit();
   //TMRArd_InitTimer(0, TIME_INTERVAL);
 }
@@ -59,53 +66,54 @@ void loop() {
     CheckLBBumperStatus();
     CheckRBBumperStatus();
     case(BACKING_TOWARDS_SERVER):
-      if(LBB == 1 && RBB == 1) {  // both back bumpers are unhit
+      if(LBB == BUMPEROPEN && RBB == BUMPEROPEN) {  // both back bumpers are unhit
       Serial.println("Moving back to server, no bumps");
-      Backward(botspeed);
-      state = BACKING_TOWARDS_SERVER;
+      LeftMtrSpeed(revbotspeed);
+      RightMtrSpeed(revbotspeed);
+  //    state = BACKING_TOWARDS_SERVER;
       }
-//      if(LBB == 0 && RBB == 0) {  // both rear bumpers hit
-      if(LBB == 0 || RBB == 0) {  // one of rear bumpers hit
+      if(LBB == BUMPERHIT && RBB == BUMPERHIT) {  // both rear bumpers hit
+ //     if(LBB == BUMPERHIT || RBB == BUMPERHIT) {  // one of rear bumpers hit
       Serial.println("Aligned with exchange");
-      Stop();
+      DriveForward(0);
       ExchangeButtonCounter = ExchangeButtonCounter + 1;
       state = PRESSING;
       }
-//      if(LBB == 1 && RBB == 0) {  // right back hit, left back not, need to twist
+//      if(LBB == BUMPEROPEN && RBB == BUMPERHIT) {  // right back hit, left back not, need to twist
 //      Serial.println("Right corner hit");
-//      LeftMtrSpeed(-1*botspeed);
+//      LeftMtrSpeed(revbotspeed);
 //      RightMtrSpeed(0);
 //      ExchangeButtonCounter = ExchangeButtonCounter + 1;
 //      state = ADJUSTING;
 //      }
-//      if(LBB == 0 && RBB == 1) {  // left back hit, right back not, need to twist
+//      if(LBB == BUMPERHIT && RBB == BUMPEROPEN) {  // left back hit, right back not, need to twist
 //      Serial.println("Left corner hit");
-//      RightMtrSpeed(-1*botspeed);
+//      RightMtrSpeed(revbotspeed);
 //      LeftMtrSpeed(0);
 //      ExchangeButtonCounter = ExchangeButtonCounter + 1;
 //      state = ADJUSTING;
 //      }
 //      break;
 //  case(ADJUSTING) :
-//      if(LBB == 0 && RBB == 0) {  // both rear bumpers hit
+//      if(LBB == BUMPERHIT && RBB == BUMPERHIT) {  // both rear bumpers hit
 //      Serial.println("Aligned with exchange");
 //      Stop();
 //      state = PRESSING;
 //      }
   case(PRESSING) :
-      Forward(botspeed);  // drive away from server
+      DriveForward(botspeed);  // drive away from server
       state = LEAVING_SERVER;
   case(DRIVING_TOWARDS_EXCHANGE) :
-//      if(LFB == 0 && RFB == 0){  // both front bumpers hit the Exchange
-      if(LFB == 0 || RFB == 0){  // one of front bumpers hit the Exchange
+      if(LFB == BUMPERHIT && RFB == BUMPERHIT){  // both front bumpers hit the Exchange
+//      if(LFB == 0 || RFB == 0){  // one of front bumpers hit the Exchange
       Serial.println("Hit server");
-      Stop();
+      DriveForward(0);
       state = READY_TO_DUMP;
       }
    case(LEAVING_SERVER):
       if (ExchangeButtonCounter < coinmax){ // pushed button enough times to get total coins, head to exchange next
-      delay(20);
-      Backward(botspeed);
+      delay(500);
+      DriveForward(revbotspeed);
       state = BACKING_TOWARDS_SERVER;
      }
        else // backwards to the server to get more coins
