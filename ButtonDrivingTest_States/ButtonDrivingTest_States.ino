@@ -128,7 +128,23 @@ void loop() {
       break;
   case(FINDING_SERVER):
    // INSERT LUCAS CODE
+      ChangeState(ADJUSTING);
+      break;
+  case(ADJUSTING):
+     if(LBB != RBB){
+      if(LBB == BUMPEROPEN && RBB == BUMPERHIT) {  // right back hit, left back not, need to twist
+      LeftMtrSpeed(-1 * TRAVELING_SPEED);
+      RightMtrSpeed(0);
+      }
+      else {  // left back hit, right back not, need to twist
+      RightMtrSpeed(-1 * TRAVELING_SPEED);
+      LeftMtrSpeed(0);
+      }
+     }
+     else {
+      Serial.println("PRESSING_SEQUENCE");
       ChangeState(PRESSING_SEQUENCE);
+     }
       break;
   case(PRESSING_SEQUENCE) :
      ButtonPressingSequence();
@@ -139,19 +155,6 @@ void loop() {
 //      ChangeState(ADJUSTING);
 //      }
 // case(ADJUSTING):
-//   if(LBB != RBB){
-//      if(LBB == BUMPEROPEN && RBB == BUMPERHIT) {  // right back hit, left back not, need to twist
-//      LeftMtrSpeed(-1 * TRAVELING_SPEED);
-//      RightMtrSpeed(0);
-//      }
-//      else {  // left back hit, right back not, need to twist
-//      Serial.println("Left corner hit");
-//      RightMtrSpeed(-1 * TRAVELING_SPEED);
-//      LeftMtrSpeed(0);
-//      }
-//      Serial.println("PRESSING_SEQUENCE");
-//      ChangeState(PRESSING_SEQUENCE);
-//   }
 //   if(LFB != RFB){
 //     if(LFB == BUMPEROPEN && RFB == BUMPERHIT) {  // right back hit, left back not, need to twist
 //      LeftMtrSpeed(TRAVELING_SPEED);
