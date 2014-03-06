@@ -26,7 +26,7 @@
 #define SEARCHING_FOR_EXCHANGE_TIMER 1
 #define MOVING_TOWARDS_TAPE_TIMER 2
 
-#define SEARCHING_FOR_EXCHANGE_MILLIS 100
+#define SEARCHING_FOR_EXCHANGE_MILLIS 2000
 #define MOVING_TOWARDS_TAPE_MILLIS 1000
 #define SCANNING_BRAKE_MICROS 10000 //micros
 
@@ -107,7 +107,7 @@ void loop() {
       break;  
     case(MOVING_TOWARDS_TAPE) :
       if(TMRArd_IsTimerExpired(MOVING_TOWARDS_TAPE_TIMER)){
-        Serial.println("Test_Completed- stopping bot");
+        //Serial.println("Test_Completed- stopping bot");
         LeftMtrSpeed(0);
         RightMtrSpeed(0); 
       }
