@@ -92,7 +92,7 @@ void WinkleInit(void) {
   /* initialize bumper pins */
   //DDRD &= 0x0F;   // make bumper sensor pins inputs
 }
-d
+
 void DriveBackward(char newSpeed){
 	LeftMtrSpeed(-1 * newSpeed);
 	RightMtrSpeed(-1 * newSpeed);
@@ -103,13 +103,13 @@ void DriveForward(char newSpeed){
 }
 
 void SpinRight(char newSpeed){
-	LeftMtrSpeed(newSpeed);
-	RightMtrSpeed(-1 * newSpeed);
+	LeftMtrSpeed(-1 * newSpeed);
+	RightMtrSpeed(1 * newSpeed);
 }
 
 void SpinLeft(char newSpeed){
-	LeftMtrSpeed(-1 * newSpeed);
-	RightMtrSpeed(newSpeed);
+	LeftMtrSpeed(1 * newSpeed);
+	RightMtrSpeed(-1 * newSpeed);
 }
 /******************************************************************************
   Function:    LeftMtrSpeed
