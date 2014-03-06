@@ -17,84 +17,119 @@
 #include <Winklelib.h>
 #include <Timers.h>
 #include <Servo.h>
-#define WAITING      1
+
+/*---------------- Module Defines ---------------------------*/
+#define BACKING_TOWARDS_SERVER   0
+#define PRESSING                 1
 #define DRIVING_TOWARDS_EXCHANGE 2
-#define PRESSING 3
-#define DRIVING_TOWARDS_SERVER 4
-#define READY_TO_DUMP 5
+#define READY_TO_DUMP            3
+#define LEAVING_SERVER           4
+#define ADJUSTING                5
 
 #define LEFT_FRONT_BUMPER        4
 #define RIGHT_FRONT_BUMPER       5
 #define LEFT_BACK_BUMPER         6
 #define RIGHT_BACK_BUMPER        7
 
-/*---------------- Module Defines ---------------------------*/
-
 /*---------------- Module Function Prototypes ---------------*/
-int pause = 10; // defining the microsecond delay between direction changes
+int state = BACKING_TOWARDS_SERVER;
 unsigned char TestTimerExpired(void);
-char forwardspeed = 5;
+char botspeed = 5;
 int ExchangeButtonCounter = 0;
-static int state = 1;
+int LFB;
+int RFB;
+int LBB;
+int RBB;
+int coinmax = 3; // number of button presses that switch states
+//int pause = 10; // defining the microsecond delay between direction changes
 
 /*---------------- Arduino Main Functions -------------------*/
 void setup() {
   Serial.begin(9600);
   Serial.println("The MotorForwardButtonTest program has started!");
-  WinkleInit();
+ // WinkleInit();
   //TMRArd_InitTimer(0, TIME_INTERVAL);
 }
 
 void loop() {
+  
   switch(state) {
-//    case(WAITING) : 
-//      if
-    case(DRIVING_TOWARDS_EXCHANGE) :
-      if(LEFT_FRONT_BUMPER == 1 && RIGHT_FRONT_BUMPER == 1) {  // both front bumpers are unhit
-      Serial.println("Moving forward, no bumps");
-      DriveForward(forwardspeed);
+    CheckLFBumperStatus();
+    CheckRFBumperStatus();
+    CheckLBBumperStatus();
+    CheckRBBumperStatus();
+    case(BACKING_TOWARDS_SERVER):
+      if(LBB == 1 && RBB == 1) {  // both back bumpers are unhit
+      Serial.println("Moving back to server, no bumps");
+      Backward(botspeed);
+      state = BACKING_TOWARDS_SERVER;
       }
-      if(LEFT_FRONT_BUMPER == 0 && RIGHT_FRONT_BUMPER == 0) {  // both front bumpers hit
+//      if(LBB == 0 && RBB == 0) {  // both rear bumpers hit
+      if(LBB == 0 || RBB == 0) {  // one of rear bumpers hit
       Serial.println("Aligned with exchange");
-      DriveForward(0);
+      Stop();
       ExchangeButtonCounter = ExchangeButtonCounter + 1;
       state = PRESSING;
       }
-//      if(LEFT_FRONT_BUMPER == 1 && RIGHT_FRONT_BUMPER == 0) {  // front right hit, front left not, need to twist
-//      Serial.println("Right corner hit")
-//      LeftMtrSpeed(forwardspeed);
+//      if(LBB == 1 && RBB == 0) {  // right back hit, left back not, need to twist
+//      Serial.println("Right corner hit");
+//      LeftMtrSpeed(-1*botspeed);
 //      RightMtrSpeed(0);
-////      ExchangeButtonCounter = ExchangeButtonCounter + 1;
-//      state = ADJUSTING
+//      ExchangeButtonCounter = ExchangeButtonCounter + 1;
+//      state = ADJUSTING;
 //      }
-//      if(LEFT_FRONT_BUMPER == 0 && RIGHT_FRONT_BUMPER == 1) {  // front left hit, front right not, need to twist
-//      Serial.println("Left corner hit")
-//      RightMtrSpeed(forwardspeed);
+//      if(LBB == 0 && RBB == 1) {  // left back hit, right back not, need to twist
+//      Serial.println("Left corner hit");
+//      RightMtrSpeed(-1*botspeed);
 //      LeftMtrSpeed(0);
-////      ExchangeButtonCounter = ExchangeButtonCounter + 1;
-//      state = ADJUSTING
+//      ExchangeButtonCounter = ExchangeButtonCounter + 1;
+//      state = ADJUSTING;
 //      }
-      break;
+//      break;
+//  case(ADJUSTING) :
+//      if(LBB == 0 && RBB == 0) {  // both rear bumpers hit
+//      Serial.println("Aligned with exchange");
+//      Stop();
+//      state = PRESSING;
+//      }
   case(PRESSING) :
-    if (ExchangeButtonCounter < 2) {
-      DriveForward(-1 * forwardspeed);  // drive in reverse
-      delay(20);
-      DriveForward(forwardspeed);
-      state = DRIVING_TOWARDS_EXCHANGE;
-    }
-      else DriveForward(-1 * forwardspeed); // backwards to the server
-      state = DRIVING_TOWARDS_SERVER;
-  case(DRIVING_TOWARDS_SERVER) :
-      if(LEFT_BACK_BUMPER == 0 && RIGHT_BACK_BUMPER == 0); {  // both front bumpers hit
-      Serial.println("Aligned with server");
-      DriveForward(0);
+      Forward(botspeed);  // drive away from server
+      state = LEAVING_SERVER;
+  case(DRIVING_TOWARDS_EXCHANGE) :
+//      if(LFB == 0 && RFB == 0){  // both front bumpers hit the Exchange
+      if(LFB == 0 || RFB == 0){  // one of front bumpers hit the Exchange
+      Serial.println("Hit server");
+      Stop();
       state = READY_TO_DUMP;
       }
+   case(LEAVING_SERVER):
+      if (ExchangeButtonCounter < coinmax){ // pushed button enough times to get total coins, head to exchange next
+      delay(20);
+      Backward(botspeed);
+      state = BACKING_TOWARDS_SERVER;
+     }
+       else // backwards to the server to get more coins
+       state = DRIVING_TOWARDS_EXCHANGE;
   }
 }
 
 /*---------------- Module Functions -------------------------*/
 
+void CheckLFBumperStatus(){
+  LFB = digitalRead(LEFT_FRONT_BUMPER);
+}
+
+void CheckRFBumperStatus(){
+  RFB = digitalRead(RIGHT_FRONT_BUMPER);
+}
+
+void CheckLBBumperStatus(){
+  LBB = digitalRead(LEFT_BACK_BUMPER);
+}
+
+void CheckRBBumperStatus(){
+  RBB = digitalRead(RIGHT_BACK_BUMPER);
+}
 
 // My bumper hits are registered - coded wrong
 
