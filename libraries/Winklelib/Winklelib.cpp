@@ -28,7 +28,8 @@
 // #define RIGHT_BACK_BUMPER        7 
 
  #define TAPE_INPUT_PIN           2
- #define BEACON_INPUT_PIN         3
+ #define HIGH_RANGE_BEACON_INPUT_PIN         3
+#define LOW_RANGE_BEACON_INPUT_PIN         13
 
 
 // #define BUTTON_PUSH_DIR          12
