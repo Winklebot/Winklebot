@@ -26,7 +26,7 @@
 #define SEARCHING_FOR_EXCHANGE_TIMER 1
 #define MOVING_TOWARDS_TAPE_TIMER 2
 
-#define SEARCHING_FOR_EXCHANGE_MILLIS 100
+#define SEARCHING_FOR_EXCHANGE_MILLIS 2000
 #define MOVING_TOWARDS_TAPE_MILLIS 1000
 #define SCANNING_BRAKE_MICROS 10000 //micros
 
@@ -58,12 +58,12 @@ int orientation = UNKNOWN_ORIENTATION;
 /*---------------- Arduino Main Functions -------------------*/
 void setup() {
   Serial.begin(9600);
-  Serial.println("The Tape_Stop_Test program has started!");
+  Serial.println("The Startin_Orientation_Test program has started!");
   pinMode(TAPE_INPUT_PIN, INPUT);
   WinkleInit();  
   TMRArd_InitTimer(NO_SIGNAL_TIMER, 2);//millis
   attachInterrupt(BEACON_INTERRUPT_NUMBER, rise_detected, RISING);
-  Serial.println("Searching for beacon");
+  ChangeState(SEARCHING_FOR_SERVER);
  
  // attachInterrupt(1, fall_detected, FALLING);
   
@@ -107,7 +107,7 @@ void loop() {
       break;  
     case(MOVING_TOWARDS_TAPE) :
       if(TMRArd_IsTimerExpired(MOVING_TOWARDS_TAPE_TIMER)){
-        Serial.println("Test_Completed- stopping bot");
+        //Serial.println("Test_Completed- stopping bot");
         LeftMtrSpeed(0);
         RightMtrSpeed(0); 
       }
@@ -168,30 +168,27 @@ void SetMotors(int newState){
    char rightSpeed;
    char leftSpeed;
    switch(newState) {
+     // turning front of the bot right, back left to find an exchange 
      case(SEARCHING_FOR_EXCHANGE_LEFT):
-       rightSpeed = SCANNING_SPEED;
-       leftSpeed = -1 * SCANNING_SPEED;
+       SpinRight(SCANNING_SPEED);
        break;
      case(SEARCHING_FOR_SERVER):
         switch(orientation){
+          // orientation is unknown, spinning front right, back left
           case(UNKNOWN_ORIENTATION) :
-            rightSpeed = SCANNING_SPEED;
-            leftSpeed = -1 * SCANNING_SPEED;
+            SpinRight(SCANNING_SPEED);
             break;
+          // orientation has been found, spinning front left, back right to return to server orientation
           case(RIGHT_ORIENTATION) :
           case(LEFT_ORIENTATION) :
-            rightSpeed = -1 * SCANNING_SPEED;
-            leftSpeed = SCANNING_SPEED;
+            SpinLeft(SCANNING_SPEED);
             break;
         }
        break; 
      case(MOVING_TOWARDS_TAPE) :
-       rightSpeed = TRAVELING_SPEED;
-       leftSpeed = TRAVELING_SPEED;
+       DriveBackward(TRAVELING_SPEED);
        break;
    }
-   LeftMtrSpeed(leftSpeed);
-   RightMtrSpeed(rightSpeed);
 }
 
 

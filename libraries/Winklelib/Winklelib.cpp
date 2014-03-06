@@ -17,18 +17,21 @@
 
 /*----------------------------- Module Defines ------------------------------*/
  #define L_MOTOR_DIR           8
- #define L_MOTOR_EN            9
+
+ #define L_MOTOR_EN            6  // changed from 9 because servo library utilizes 9 and 10
+
  #define R_MOTOR_DIR          12		//moved this from 10 to 12 in order to give the pin_Servo 9 or 10	
  
  #define R_MOTOR_EN           11
 
-// #define LEFT_FRONT_BUMPER        4
-// #define RIGHT_FRONT_BUMPER       5
-// #define LEFT_BACK_BUMPER         6
-// #define RIGHT_BACK_BUMPER        7 
+ #define LEFT_FRONT_BUMPER        4
+ #define RIGHT_FRONT_BUMPER       5
+ #define LEFT_BACK_BUMPER         A5 //changed from 6 to accommodate servo library limitation
+ #define RIGHT_BACK_BUMPER        7 
 
  #define TAPE_INPUT_PIN           2
- #define BEACON_INPUT_PIN         3
+ #define HIGH_RANGE_BEACON_INPUT_PIN         3
+#define LOW_RANGE_BEACON_INPUT_PIN         13
 
 
 // #define BUTTON_PUSH_DIR          12
@@ -75,11 +78,24 @@ static unsigned int SharedWord;
 ******************************************************************************/
 void WinkleInit(void) {
   /* initialize motor control pins */
-  PORTB &= 0xF0;  // EN=0 (off) for both motors and also DIR=0 for both motors
-  DDRB |= 0x0F;   // make motor EN and DIR pins outputs
-  
+  //PORTB &= 0xF0;  // EN=0 (off) for both motors and also DIR=0 for both motors
+  //DDRB |= 0x0F;   // make motor EN and DIR pins outputs
+  pinMode(L_MOTOR_DIR , OUTPUT);
+  pinMode(R_MOTOR_DIR , OUTPUT);
+  pinMode(L_MOTOR_EN , OUTPUT);
+  pinMode(R_MOTOR_EN , OUTPUT);
+
+
+
+
+
   /* initialize bumper pins */
   //DDRD &= 0x0F;   // make bumper sensor pins inputs
+}
+
+void DriveBackward(char newSpeed){
+	LeftMtrSpeed(-1 * newSpeed);
+	RightMtrSpeed(-1 * newSpeed);
 }
 void DriveForward(char newSpeed){
 	LeftMtrSpeed(newSpeed);
@@ -87,13 +103,13 @@ void DriveForward(char newSpeed){
 }
 
 void SpinRight(char newSpeed){
-	LeftMtrSpeed(newSpeed);
-	RightMtrSpeed(-1 * newSpeed);
+	LeftMtrSpeed(-1 * newSpeed);
+	RightMtrSpeed(1 * newSpeed);
 }
 
 void SpinLeft(char newSpeed){
-	LeftMtrSpeed(-1 * newSpeed);
-	RightMtrSpeed(newSpeed);
+	LeftMtrSpeed(1 * newSpeed);
+	RightMtrSpeed(-1 * newSpeed);
 }
 /******************************************************************************
   Function:    LeftMtrSpeed

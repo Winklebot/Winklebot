@@ -32,6 +32,7 @@ typedef enum {
     
    void WinkleInit(void);
    void DriveForward(char newSpeed);
+   void DriveBackward(char newSpeed);
    void SpinRight(char newSpeed);
    void SpinLeft(char newSpeed);
 
