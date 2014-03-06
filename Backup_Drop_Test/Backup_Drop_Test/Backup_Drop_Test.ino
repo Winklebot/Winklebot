@@ -16,7 +16,7 @@
 **************************************************************/
 
 /*---------------- Includes ---------------------------------*/
-#include <Winklelib.h>
+//#include <Winklelib.h>
 #include <Timers.h>
 #include <Servo.h>
 
@@ -24,6 +24,12 @@
 #define DUMP_ANGLE    90
 #define RESET_RAMP    9
 #define DUMP_TIME     2500
+#define L_MOTOR_DIR           8
+#define L_MOTOR_EN            6 //NEW bummper now on ANALOG 5
+#define R_MOTOR_DIR          12 
+#define R_MOTOR_EN           11
+#define SPEED_SCALER  25
+
 Servo myservo;
 
 
@@ -41,12 +47,16 @@ void setup() {
   
   pinMode(4,INPUT);
   pinMode(5,INPUT);
-  pinMode(6,INPUT);
-  pinMode(7,INPUT);
+  pinMode(10,OUTPUT);
+  pinMode(L_MOTOR_DIR , OUTPUT);
+  pinMode(R_MOTOR_DIR , OUTPUT);
+  pinMode(L_MOTOR_EN , OUTPUT);
+  pinMode(R_MOTOR_EN , OUTPUT);
   
   myservo.attach(10);
   myservo.write(9);
- // WinkleInit();
+
+//  WinkleInit();
   //TMRArd_InitTimer(0, TIME_INTERVAL);
   DriveForward(5);
 }
@@ -60,6 +70,11 @@ void loop() {
     LeftMtrSpeed(0);
     RightMtrSpeed(0);
     DropCoins();
+    Serial.println("both bumpers pressed, dumped is ");
+    Serial.println(dumped);
+//    myservo.write(DUMP_ANGLE);
+//    delayMicroseconds(DUMP_TIME);
+//    myservo.write(RESET_RAMP);
   }
   
   else if ((LFB == 0) && (dumped == 0)) {           //left rear bumper depressed, run only right motor
@@ -76,7 +91,40 @@ void loop() {
 /*---------------- Module Functions -------------------------*/
 
 void DropCoins(void) {
-  myservo.write(DUMP_ANGLE);
-  delayMicroseconds(DUMP_TIME);
-  myservo.write(RESET_RAMP);
+   Serial.println("dropping!");
+   myservo.write(90);
+   delay(2500);
+   myservo.write(9);
 }
+
+void DriveForward(char newSpeed){
+	LeftMtrSpeed(newSpeed);
+	RightMtrSpeed(newSpeed);
+}
+
+void LeftMtrSpeed(char newSpeed) {
+  if ((newSpeed < -10) || (newSpeed > 10)) {
+//    return ERR_BADSPEED;
+  }
+  if (newSpeed < 0) {
+    digitalWrite(L_MOTOR_DIR,LOW); // set the direction to reverse
+  } else {
+    digitalWrite(L_MOTOR_DIR,HIGH); // set the direction to forward
+  }
+  analogWrite(L_MOTOR_EN,SPEED_SCALER*abs(newSpeed));
+ //   return OK_SPEED;
+}
+
+void RightMtrSpeed(char newSpeed) {
+  if ((newSpeed < -10) || (newSpeed > 10)) {
+ //   return ERR_BADSPEED;
+  }
+  if (newSpeed < 0) {
+    digitalWrite(R_MOTOR_DIR,LOW); // set the direction to reverse
+  } else {
+    digitalWrite(R_MOTOR_DIR,HIGH); // set the direction to forward
+  }
+  analogWrite(R_MOTOR_EN,SPEED_SCALER*abs(newSpeed));
+//    return OK_SPEED;
+}
+
