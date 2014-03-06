@@ -24,20 +24,28 @@ void setup() {
 
 void loop() {
   int LFB = digitalRead(4);
-  Serial.println("Left Front Bumper");
-  Serial.println(LFB);
+  if(LFB == 0){
+    Serial.println("Left Front Bumper");
+    Serial.println(LFB);
+  }
   
   int RFB = digitalRead(5);
-  Serial.println("Right Front Bumper");
-  Serial.println(RFB);
+  if(RFB == 0){
+    Serial.println("Right Front Bumper");
+    Serial.println(RFB);
+  }
 
   int LBB = digitalRead(6);
-  Serial.println("Left Back Bumper");
-  Serial.println(LBB);
+  if(LBB == 0){
+    Serial.println("Left Back Bumper");
+    Serial.println(LBB);
+  }
 
   int RBB = digitalRead(7);
-  Serial.println("Right Back Bumper");
-  Serial.println(RBB);  
+  if(RBB == 0){
+    Serial.println("Right Back Bumper");
+    Serial.println(RBB);  
+  }
 }
   
 

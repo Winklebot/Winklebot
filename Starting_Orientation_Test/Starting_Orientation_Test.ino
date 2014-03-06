@@ -58,12 +58,12 @@ int orientation = UNKNOWN_ORIENTATION;
 /*---------------- Arduino Main Functions -------------------*/
 void setup() {
   Serial.begin(9600);
-  Serial.println("The Tape_Stop_Test program has started!");
+  Serial.println("The Startin_Orientation_Test program has started!");
   pinMode(TAPE_INPUT_PIN, INPUT);
   WinkleInit();  
   TMRArd_InitTimer(NO_SIGNAL_TIMER, 2);//millis
   attachInterrupt(BEACON_INTERRUPT_NUMBER, rise_detected, RISING);
-  Serial.println("Searching for beacon");
+  ChangeState(SEARCHING_FOR_SERVER);
  
  // attachInterrupt(1, fall_detected, FALLING);
   
