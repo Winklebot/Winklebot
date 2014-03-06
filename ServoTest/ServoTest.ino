@@ -49,7 +49,7 @@ void setup() {
 }
 
 void loop() {  
-  myservo.write(90);
+  myservo.write(0);
 }
       
 /*---------------- Module Functions -------------------------*/
