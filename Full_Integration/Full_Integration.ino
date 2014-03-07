@@ -240,6 +240,10 @@ void loop() {
           Serial.println("overshot the server at SHORT RANGE, CORRECTING!");
           ChangeState(CORRECTING_SHORT_RANGE);
         }
+        else {
+        Serial.println("ADJUSTING");
+        ChangeState(ADJUSTING);
+      }
         //state = 100;
        // Serial.println("Server found! ready to dump coins");
       } 
