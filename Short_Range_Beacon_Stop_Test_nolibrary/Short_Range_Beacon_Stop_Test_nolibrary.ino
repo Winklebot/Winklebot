@@ -62,11 +62,14 @@ void loop() {
   UpdateSignal();
   boolean inRange = CheckSignalPresence();
   if(inRange){
-    Serial.println("Beacon in range - moving forward ");
-    LeftMtrSpeed(-1 * FORWARD_SPEED);
-    RightMtrSpeed(-1 * FORWARD_SPEED);
+    Serial.println("IN RANGE!");
+    LeftMtrSpeed(0);
+    RightMtrSpeed(0);
     //beaconFoundFlag = false;
     
+  }
+  else{
+    Serial.println("OUT OF RANGE!");
   }
   
 }

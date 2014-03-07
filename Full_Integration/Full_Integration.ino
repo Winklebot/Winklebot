@@ -476,10 +476,12 @@ void SetMotors(int newState){
        if (orientation == LEFT_ORIENTATION){
           Serial.println("SHORT RANGEE -correcting towards the LEFT");
           SpinRight(SCANNING_SPEED);
+          ChangeState(ADJUSTING);
        }
        else{
          Serial.println("SHORT RANGE - correcting towards the RIGHT");
          SpinLeft(SCANNING_SPEED);
+         ChangeState(ADJUSTING);
        }
        break;
     case(ADJUSTING):
