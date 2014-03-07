@@ -145,6 +145,10 @@ void loop() {
         DriveBackwardCorrected(TRAVELING_SPEED);// replace with coin dumping code
         //state = 100;
         Serial.println("Server found! ready to dump coins");
+        DriveForwardCorrected(0);// replace with coin mining code
+        state = 100;
+        Serial.println("Server found! ready to mine coins");
+>>>>>>> 5447dacbe404395f5c1f7039dd6245746ccf768a
       } 
       break;
 //------------------------------ADD COIN DUMPING-------------------
