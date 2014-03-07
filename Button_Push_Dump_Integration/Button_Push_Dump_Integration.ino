@@ -57,13 +57,6 @@
 #define BUTTON_PRESS_WAIT_MILLIS 1000  // time of delay that bot is waiting at pushed button before leaving
 #define BEACON_INTERRUPT_NUMBER  1
 #define TAPE_INTERRUPT_NUMBER    0 
-<<<<<<< HEAD
-#define DRIVE_DELAY_MILLIS       500
-#define STOP_DELAY_MILLIS        500
-=======
-#define DRIVE_DELAY_MILLIS       100
-#define STOP_DELAY_MILLIS        100
->>>>>>> FETCH_HEAD
 
 
 // DEFINE PINS
@@ -155,10 +148,6 @@ void loop() {
      ChangeState(MOVING_TOWARDS_EXCHANGE);
       break;
   case(MOVING_TOWARDS_EXCHANGE) :
-    DriveForwardCorrected(NOMINAL_TRAVELING_SPEED);
-    delay(DRIVE_DELAY_MILLIS);
-    Stop();
-    delay(STOP_DELAY_MILLIS);
     CheckBumpers();
     if ((LFB == BUMPERHIT) && (RFB == BUMPERHIT) && (dumped == 0)) {     //both rear bumpers depressed, stop motors
       dumped = 1;
