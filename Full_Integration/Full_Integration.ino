@@ -85,18 +85,18 @@
 //----------------------------------------------------------------------------
 
 //-----------------------MOTOR SPEEDS -----------------------------------------
-#define SCANNING_SPEED 5
-#define TRAVELING_SPEED 7
+#define TRAVELING_SPEED 180 // using 0-255 pwm, int
+#define SCANNING_SPEED 5 // using speed scaler for 0-10, char
 #define SCANNING_RIGHT_BRAKING_SPEED 10
 #define SCANNING_LEFT_BRAKING_SPEED -10
-#define SPEED_SCALER 25
+#define SPEED_SCALER 25  // converts 0-255 into a 0-10
 
 //-------------------------------------------------------------------------------
 
 //----------------------- TERMS -----------------------------------------
 #define BUMPERHIT                0
 #define BUMPEROPEN               1
-#define SPEED_SCALER             25 // map 0-255 PWM settings to 0-10 speed settings
+#define SPEED_SCALER             25 // 0-255 PWM settings 
 
 #define DUMP_ANGLE               90
 #define RESET_RAMP               9
@@ -556,13 +556,13 @@ void Init(){
   pinMode(pin_Servo, OUTPUT);
 }
 
-void DriveBackwardCorrected(char newSpeed){  // Ideal speed in testing was Right Motor 9, left motor 7
-	LeftMtrSpeed(-1 * (newSpeed + 1));
-	RightMtrSpeed(-1 * (newSpeed - 1));
+void DriveBackwardCorrected(int newSpeed){  // Ideal speed in testing was Right Motor 180, left motor 225
+	IntLeftMtrSpeed(-1 * (newSpeed + 45));
+	IntRightMtrSpeed(-1 * newSpeed);
 }
-void DriveForwardCorrected(char newSpeed){
-	LeftMtrSpeed((newSpeed + 1));
-	RightMtrSpeed((newSpeed - 1));
+void DriveForwardCorrected(int newSpeed){
+	IntLeftMtrSpeed((newSpeed + 45));
+	IntRightMtrSpeed(newSpeed);
 }
 void Stop() {
   LeftMtrSpeed(0);
@@ -578,6 +578,24 @@ void SpinLeft(char newSpeed){
 	LeftMtrSpeed(1 * newSpeed);
 	RightMtrSpeed(-1 * newSpeed);
 }
+void IntLeftMtrSpeed(int newSpeed) {
+  if (newSpeed < 0) {
+    digitalWrite(L_MOTOR_DIR,LOW); // set the direction to reverse
+  } else {
+    digitalWrite(L_MOTOR_DIR,HIGH); // set the direction to forward
+  }
+  analogWrite(L_MOTOR_EN,abs(newSpeed));
+}
+
+void IntRightMtrSpeed(int newSpeed){
+  if (newSpeed < 0) {
+    digitalWrite(R_MOTOR_DIR,LOW); // set the direction to reverse
+  } else {
+    digitalWrite(R_MOTOR_DIR,HIGH); // set the direction to forward
+  }
+  analogWrite(R_MOTOR_EN,abs(newSpeed));
+}
+
 void LeftMtrSpeed(char newSpeed) {
   if (newSpeed < 0) {
     digitalWrite(L_MOTOR_DIR,LOW); // set the direction to reverse
@@ -595,7 +613,5 @@ void RightMtrSpeed(char newSpeed){
   }
   analogWrite(R_MOTOR_EN,SPEED_SCALER*abs(newSpeed));
 }
-
-
 
 
