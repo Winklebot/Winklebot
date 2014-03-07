@@ -557,11 +557,11 @@ void Init(){
 }
 
 void DriveBackwardCorrected(int newSpeed){  // Ideal speed in testing was Right Motor 180, left motor 225
-	IntLeftMtrSpeed(-1 * (newSpeed + 45));
+	IntLeftMtrSpeed(-1 * (newSpeed + 45)); // adding compensation for straight driving
 	IntRightMtrSpeed(-1 * newSpeed);
 }
 void DriveForwardCorrected(int newSpeed){
-	IntLeftMtrSpeed((newSpeed + 45));
+	IntLeftMtrSpeed((newSpeed + 45));  // adding compensation for straight driving
 	IntRightMtrSpeed(newSpeed);
 }
 void Stop() {
