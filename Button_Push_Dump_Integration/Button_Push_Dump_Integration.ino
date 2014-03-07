@@ -222,9 +222,9 @@ void CheckBumpers(){
   LFB = digitalRead(LEFT_FRONT_BUMPER);
   RFB = digitalRead(RIGHT_FRONT_BUMPER);
   LBB = digitalRead(LEFT_BACK_BUMPER);
-  Serial.println(LBB);
+  //Serial.println(LBB);
   RBB = digitalRead(RIGHT_BACK_BUMPER);
-  Serial.println(RBB);
+  //Serial.println(RBB);
 }
     
 /******************************************************************************
