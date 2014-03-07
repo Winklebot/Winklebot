@@ -57,8 +57,8 @@
 #define BUTTON_PRESS_WAIT_MILLIS 1000  // time of delay that bot is waiting at pushed button before leaving
 #define BEACON_INTERRUPT_NUMBER  1
 #define TAPE_INTERRUPT_NUMBER    0 
-#define DRIVE_DELAY_MILLIS        100
-#define STOP_DELAY_MILLIS        100
+#define DRIVE_DELAY_MILLIS       500
+#define STOP_DELAY_MILLIS        500
 
 
 // DEFINE PINS
