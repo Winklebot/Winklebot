@@ -46,11 +46,9 @@
 //------------------------------------------------------------------------------------------
 
 //-----------------------------------MOVING TIMES------------------------------------------
-#define SEARCHING_FOR_EXCHANGE_MILLIS 1000
+#define SEARCHING_FOR_EXCHANGE_MILLIS 500
 #define SCANNING_BRAKE_MICROS 10000 
-#define RIGHT_DISPLACING_ORIENTATION_MILLIS 0
-#define LEFT_DISPLACING_ORIENTATION_MILLIS 500
-
+#define DISPLACING_ORIENTATION_MILLIS 0
 //--------------------------------------------------------------------------------------
 
 //---------------------------ORIENTATIONS------------------------------------------
@@ -94,7 +92,7 @@ volatile unsigned long period = WIDE_RANGE_NO_SIGNAL_MICROS;
 volatile boolean risingEdgeFlag = false; 
 //boolean beaconFoundFlag = false;
 boolean onTape = false;
-int orientation = UNKNOWN_ORIENTATION;
+int orientation = RIGHT_ORIENTATION;
 
 int state;
 /*---------------- Arduino Main Functions -------------------*/
@@ -125,20 +123,16 @@ void loop() {
             ChangeState(SEARCHING_FOR_EXCHANGE_LEFT);
             break;
           case(RIGHT_ORIENTATION) :
-            Stop();
-            delay(500);
             Serial.println("Bot in right orientation and facing towards server - displacing towards the RIGHT");
             SpinLeft(SCANNING_SPEED);
-            delay(RIGHT_DISPLACING_ORIENTATION_MILLIS);
+            delay(DISPLACING_ORIENTATION_MILLIS);
             Serial.println("Bot displaced- moving towards tape");
             ChangeState(MOVING_TOWARDS_TAPE);
             break;
           case(LEFT_ORIENTATION) :
-            Stop();
-            delay(2000);
             Serial.println("Bot in left orientation and facing towards server - displacing towards the LEFT");
             SpinRight(SCANNING_SPEED);
-            delay(LEFT_DISPLACING_ORIENTATION_MILLIS);
+            delay(DISPLACING_ORIENTATION_MILLIS);
             Serial.println("Bot displaced- moving towards tape");
             ChangeState(MOVING_TOWARDS_TAPE);
             break;
@@ -148,13 +142,15 @@ void loop() {
       break;
     case(SEARCHING_FOR_SERVER_SHORT) :
       if(CheckShortRangeForSignal() ){ // try checking wide range for server as well if short gives problems
-        if(orientation == LEFT_ORIENTATION){
-           SpinRight(SCANNING_SPEED);
-           delay(100);
-        }
+<<<<<<< HEAD
         DriveBackwardCorrected(TRAVELING_SPEED);// replace with coin dumping code
         //state = 100;
-       // Serial.println("Server found! ready to dump coins");
+        Serial.println("Server found! ready to dump coins");
+=======
+        DriveForwardCorrected(0);// replace with coin mining code
+        state = 100;
+        Serial.println("Server found! ready to mine coins");
+>>>>>>> 5447dacbe404395f5c1f7039dd6245746ccf768a
       } 
       break;
 //------------------------------ADD COIN DUMPING-------------------
