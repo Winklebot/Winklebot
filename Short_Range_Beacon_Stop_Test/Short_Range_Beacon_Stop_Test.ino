@@ -45,8 +45,8 @@ void setup() {
   pinMode(SHORT_RANGE_BEACON_INPUT_PIN, INPUT);
   //WinkleInit();  
   TMRArd_InitTimer(SHORT_RANGE_BEACON_SIGNAL_TIMER , SHORT_RANGE_BEACON_SIGNAL_TIME);
-  RightMtrSpeed(-1 * TURNING_SPEED);
-  LeftMtrSpeed(TURNING_SPEED);
+  RightMtrSpeed(0);
+  LeftMtrSpeed(0);
   Serial.println("Searching for beacon");
   
 }
@@ -57,10 +57,13 @@ void loop() {
   boolean inRange = CheckSignalPresence();
   if(inRange){
     Serial.println("Beacon in range - moving forward ");
-    LeftMtrSpeed(-1 * FORWARD_SPEED);
-    RightMtrSpeed(-1 * FORWARD_SPEED);
+    LeftMtrSpeed(0);
+    RightMtrSpeed(0);
     //beaconFoundFlag = false;
     
+  }
+  else{
+    Serial.println("out of range");
   }
   
 }

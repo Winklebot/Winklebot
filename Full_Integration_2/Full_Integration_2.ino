@@ -49,8 +49,8 @@
 //-----------------------------------MOVING TIMES------------------------------------------
 #define SEARCHING_FOR_EXCHANGE_MILLIS 1000
 #define SCANNING_BRAKE_MICROS 10000 
-#define RIGHT_DISPLACING_ORIENTATION_MILLIS 500
-#define LEFT_DISPLACING_ORIENTATION_MILLIS 200
+#define RIGHT_DISPLACING_ORIENTATION_MILLIS 300
+#define LEFT_DISPLACING_ORIENTATION_MILLIS 300
 #define BUTTON_PRESS_MILLIS    333
 #define BUTTON_PRESS_WAIT_MILLIS 1000  // time of delay that bot is waiting at pushed button before leaving
 #define PAUSE_MILLIS            1000
@@ -85,7 +85,8 @@
 //----------------------------------------------------------------------------
 
 //-----------------------MOTOR SPEEDS -----------------------------------------
-#define TRAVELING_SPEED 180 // using 0-255 pwm, int
+#define INT_TRAVELING_SPEED 180 // using 0-255 pwm, int
+#define TRAVELING_SPEED 8 // using 0-10 pwm, char
 #define SCANNING_SPEED 5 // using speed scaler for 0-10, char
 #define SCANNING_RIGHT_BRAKING_SPEED 10
 #define SCANNING_LEFT_BRAKING_SPEED -10
@@ -496,7 +497,7 @@ void SetMotors(int newState){
       Stop();
       break;
     case(MOVING_TOWARDS_EXCHANGE):
-      DriveForwardCorrected(TRAVELING_SPEED);
+      IntDriveForwardCorrected(INT_TRAVELING_SPEED);
       break;
    }
 }
@@ -558,13 +559,22 @@ void Init(){
   pinMode(pin_Servo, OUTPUT);
 }
 
-void DriveBackwardCorrected(int newSpeed){  // Ideal speed in testing was Right Motor 180, left motor 225
+void IntDriveBackwardCorrected(int newSpeed){  // Ideal speed in testing was Right Motor 180, left motor 225
 	IntLeftMtrSpeed(-1 * (newSpeed + 45)); // adding compensation for straight driving
 	IntRightMtrSpeed(-1 * newSpeed);
 }
-void DriveForwardCorrected(int newSpeed){
+void IntDriveForwardCorrected(int newSpeed){
 	IntLeftMtrSpeed((newSpeed + 45));  // adding compensation for straight driving
 	IntRightMtrSpeed(newSpeed);
+}
+
+void DriveBackwardCorrected(char newSpeed){  // Ideal speed in testing was Right Motor 180, left motor 225
+	LeftMtrSpeed(-1 * (newSpeed + 1)); // adding compensation for straight driving
+	RightMtrSpeed(-1 * (newSpeed-1));
+}
+void DriveForwardCorrected(char newSpeed){
+	LeftMtrSpeed((newSpeed + 1));  // adding compensation for straight driving
+	RightMtrSpeed(newSpeed - 1);
 }
 void Stop() {
   LeftMtrSpeed(0);
