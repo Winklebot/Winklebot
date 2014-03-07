@@ -25,7 +25,7 @@
 #define SHORT_RANGE_BEACON_SIGNAL_TIMER 0
 #define SHORT_RANGE_BEACON_SIGNAL_TIME 4
 
-#define TURNING_SPEED 4
+#define TURNING_SPEED 5
 #define FORWARD_SPEED 9
 /*---------------- Module Function Prototypes ---------------*/
 void rise_detected();
@@ -43,7 +43,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("The Short_Range_Beacon_Stop_Test program has started!");
   pinMode(SHORT_RANGE_BEACON_INPUT_PIN, INPUT);
-  WinkleInit();  
+  //WinkleInit();  
   TMRArd_InitTimer(SHORT_RANGE_BEACON_SIGNAL_TIMER , SHORT_RANGE_BEACON_SIGNAL_TIME);
   RightMtrSpeed(-1 * TURNING_SPEED);
   LeftMtrSpeed(TURNING_SPEED);
