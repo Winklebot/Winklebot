@@ -52,6 +52,8 @@
 #define RIGHT_DISPLACING_ORIENTATION_MILLIS 200
 #define LEFT_DISPLACING_ORIENTATION_MILLIS 200
 #define BUTTON_PRESS_MILLIS    333
+#define PAUSE_MILLIS            1000
+#define DUMP_DELAY_MILLIS       2500
 
 //--------------------------------------------------------------------------------------
 
@@ -167,7 +169,7 @@ void loop() {
             break;
           case(RIGHT_ORIENTATION) :
             Stop();
-            delay(500);
+            delay(PAUSE_MILLIS);
             Serial.println("Bot in right orientation and facing towards server - displacing towards the RIGHT");
             SpinLeft(SCANNING_SPEED);
             delay(RIGHT_DISPLACING_ORIENTATION_MILLIS);
@@ -176,7 +178,7 @@ void loop() {
             break;
           case(LEFT_ORIENTATION) :
             Stop();  // pause after detected wide server beacon
-            delay(2000); 
+            delay(PAUSE_MILLIS); 
             Serial.println("Bot in left orientation and facing towards server - displacing towards the LEFT");
             //checkwiderangeserver if present- continue to displacing
             // if not present - reverse direction until checkwiderangeserver is true - continue to displacing
@@ -197,7 +199,7 @@ void loop() {
          // if (orientation == LEFT_ORIENTATION){ SetMotors
             if(CheckWideRangeForServer() == true){
               Stop(); 
-              delay(1000); // Delay to make this state more visible
+              delay(PAUSE_MILLIS); // Delay to make this state more visible
               Serial.println("Displacing");
               ChangeState(DISPLACING);
             }
@@ -233,7 +235,7 @@ void loop() {
         }
        */
         Stop();
-        delay(1000);
+        delay(PAUSE_MILLIS);
         if(CheckShortRangeForSignal == false){
           Serial.println("overshot the server at SHORT RANGE, CORRECTING!");
           ChangeState(CORRECTING_SHORT_RANGE);
@@ -392,7 +394,7 @@ void SetTimer(int newState){
 void DropCoins(void) {
    Serial.println("dropping!");
    myservo.write(90);
-   delay(2500);
+   delay(DUMP_DELAY_MILLIS);
    myservo.write(9);
 }
 
