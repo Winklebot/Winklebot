@@ -37,10 +37,10 @@
 // DEFINE TERMS
 #define BUMPERHIT                0
 #define BUMPEROPEN               1
-#define SPEED_SCALER             25 // map 0-255 PWM settings to 0-10 speed settings
+#define SPEED_SCALER             1 // map 0-255 PWM settings to 0-10 speed settings
 //#define TRAVELING_SPEED_LEFT     9
 //#define TRAVELING_SPEED_RIGHT    7
-#define NOMINAL_TRAVELING_SPEED          8 // Left is speed + 1, right is speed - 1
+#define NOMINAL_TRAVELING_SPEED       200    // Left is speed + 1, right is speed - 1
 
 #define DUMP_ANGLE               90
 #define RESET_RAMP               9
@@ -57,7 +57,7 @@
 #define BUTTON_PRESS_WAIT_MILLIS 1000  // time of delay that bot is waiting at pushed button before leaving
 #define BEACON_INTERRUPT_NUMBER  1
 #define TAPE_INTERRUPT_NUMBER    0 
-#define DRIVE_DELAY_MILLIS        100
+#define DRIVE_DELAY_MILLIS       100
 #define STOP_DELAY_MILLIS        100
 
 
@@ -265,12 +265,12 @@ void SetMotors(int newState){
   Notes:    
 ******************************************************************************/ 
 void DriveBackwardCorrected(char newSpeed){  // Ideal speed in testing was Right Motor 9, left motor 7
-	LeftMtrSpeed(-1 * (newSpeed + 1));
-	RightMtrSpeed(-1 * (newSpeed - 1));
+	LeftMtrSpeed(-1 * (newSpeed + 35)); // 235, a little faster that "9"
+	RightMtrSpeed(-1 * (newSpeed - 25)); // 175 = 7
 }
 void DriveForwardCorrected(char newSpeed){
-	LeftMtrSpeed((newSpeed + 1));
-	RightMtrSpeed((newSpeed - 1));
+	LeftMtrSpeed((newSpeed + 35));
+	RightMtrSpeed((newSpeed - 25));
 }
 void Stop() {
   LeftMtrSpeed(0);
