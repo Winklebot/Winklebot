@@ -142,9 +142,9 @@ void loop() {
       break;
     case(SEARCHING_FOR_SERVER_SHORT) :
       if(CheckShortRangeForSignal() ){ // try checking wide range for server as well if short gives problems
-        DriveForwardCorrected(0);// replace with coin dumping code
+        DriveForwardCorrected(0);// replace with coin mining code
         state = 100;
-        Serial.println("Server found! ready to dump coins");
+        Serial.println("Server found! ready to mine coins");
       } 
       break;
 //------------------------------ADD COIN DUMPING-------------------
