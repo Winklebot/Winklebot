@@ -66,6 +66,7 @@
 #define SEARCHING_FOR_SERVER_SHORT 4
 #define CORRECTING 5
 #define DISPLACING 6
+#define CORRECTING_SHORT_RANGE 7
 //----------------------------------------------------------------------------
 
 //-----------------------MOTOR SPEEDS -----------------------------------------
@@ -165,7 +166,7 @@ void loop() {
           
           break;
     case(CORRECTING_SHORT_RANGE):
-       if(CheckShortRangeForServer() == true){
+       if(CheckShortRangeForSignal() == true){ // use cshort range sensor to correct back to server
               Stop(); 
        }
           
@@ -187,11 +188,17 @@ void loop() {
             break;
     case(SEARCHING_FOR_SERVER_SHORT) :
       if(CheckShortRangeForSignal() ){ // try checking wide range for server as well if short gives problems
-        if(orientation == LEFT_ORIENTATION){
+        /*if(orientation == LEFT_ORIENTATION){
            SpinRight(SCANNING_SPEED);
            delay(100);
         }
-        DriveBackwardCorrected(TRAVELING_SPEED);// replace with coin dumping code
+       */
+        Stop();
+        delay(1000);
+        if(CheckShortRangeForSignal == false){
+          Serial.println("overshot the server at SHORT RANGE, CORRECTING!");
+          ChangeState(CORRECTING_SHORT_RANGE);
+        }
         //state = 100;
        // Serial.println("Server found! ready to dump coins");
       } 
