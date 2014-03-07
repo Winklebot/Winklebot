@@ -50,7 +50,11 @@ void setup() {
 }
 
 void loop() {  
+<<<<<<< HEAD
+  myservo.write(0);
+=======
   
+>>>>>>> FETCH_HEAD
 }
       
 /*---------------- Module Functions -------------------------*/
