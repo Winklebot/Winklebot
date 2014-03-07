@@ -49,8 +49,8 @@
 //-----------------------------------MOVING TIMES------------------------------------------
 #define SEARCHING_FOR_EXCHANGE_MILLIS 1000
 #define SCANNING_BRAKE_MICROS 10000 
-#define RIGHT_DISPLACING_ORIENTATION_MILLIS 200
-#define LEFT_DISPLACING_ORIENTATION_MILLIS 200
+#define RIGHT_DISPLACING_ORIENTATION_MILLIS 300
+#define LEFT_DISPLACING_ORIENTATION_MILLIS 300
 #define BUTTON_PRESS_MILLIS    333
 #define PAUSE_MILLIS            1000
 #define DUMP_DELAY_MILLIS       2500
@@ -171,11 +171,21 @@ void loop() {
             Stop();
             delay(PAUSE_MILLIS);
             Serial.println("Bot in right orientation and facing towards server - displacing towards the RIGHT");
-            SpinLeft(SCANNING_SPEED);
-            delay(RIGHT_DISPLACING_ORIENTATION_MILLIS);
-            Serial.println("Bot displaced- moving towards tape");
-            ChangeState(MOVING_TOWARDS_TAPE);
-            break;
+//            SpinLeft(SCANNING_SPEED);
+//            delay(RIGHT_DISPLACING_ORIENTATION_MILLIS);
+//            Serial.println("Bot displaced- moving towards tape");
+//            ChangeState(MOVING_TOWARDS_TAPE);
+//            break;
+            if(CheckWideRangeForServer() == false){
+              // SpinRight(SCANNING_SPEED); Moved this to SetMotor function - CORRECTING LEFT
+              Serial.println("Correcting");
+              ChangeState(CORRECTING);
+            }
+            else {
+              Serial.println("Displacing");
+              ChangeState(DISPLACING);
+            }
+          break;
           case(LEFT_ORIENTATION) :
             Stop();  // pause after detected wide server beacon
             delay(PAUSE_MILLIS); 
@@ -456,8 +466,8 @@ void SetMotors(int newState){
           SpinRight(SCANNING_SPEED);
        }
        else{
-         Serial.println("correcting towards the RIGHT");
-         SpinLeft(SCANNING_SPEED);
+         Serial.println("correcting towards the LEFT");
+         SpinRight(SCANNING_SPEED);
        }
        break;
      case(CORRECTING_SHORT_RANGE):
