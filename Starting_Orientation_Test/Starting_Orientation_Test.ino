@@ -9,72 +9,113 @@
 **************************************************************/
 
 /*---------------- Includes ---------------------------------*/
-#include <Winklelib.h>
+//#include <Winklelib.h>
 #include <Timers.h>
 /*---------------- Module Defines ---------------------------*/
+
+//------------------------------------------PINS-----------------------------------------
 #define TAPE_INPUT_PIN 2
-#define BEACON_INPUT_PIN 3
+#define WIDE_RANGE_BEACON_INPUT_PIN 3
+#define SHORT_RANGE_BEACON_INPUT_PIN 13
+#define LEFT_FRONT_BUMPER        4
+#define RIGHT_FRONT_BUMPER       5
+#define LEFT_BACK_BUMPER         A5 // CHANGED FROM 6
+#define RIGHT_BACK_BUMPER        7
+#define L_MOTOR_DIR              8
+#define L_MOTOR_EN               6 // CHANGED FROM 9 because servo library takes over 9 and 10
+#define R_MOTOR_DIR              12   //moved this from 10 to 12 in order to give the pin_Servo 9 or 10	
+#define R_MOTOR_EN               11
+#define pin_Servo	         10
 #define BEACON_INTERRUPT_NUMBER 1
 #define TAPE_INTERRUPT_NUMBER 0  
+//------------------------------------------------------------------------------------------
   
+//--------------------------------- BEACON SIGNAL TIMES -------------------------------------
 #define SERVER_BEACON_MICROS 1176
 #define EXCHANGE_BEACON_MICROS 333
-#define NO_SIGNAL_MICROS 2000
+#define WIDE_RANGE_NO_SIGNAL_MICROS 2000
+#define WIDE_RANGE_NO_SIGNAL_MILLIS 2
 #define BEACON_THRESHOLD 20
+#define SHORT_RANGE_NO_SIGNAL_MILLIS 4
+//--------------------------------------------------------------------------------------------
 
-#define NO_SIGNAL_TIMER 0
+//-----------------------------------TIMERS -----------------------------------------------
+#define WIDE_RANGE_NO_SIGNAL_TIMER 0
 #define SEARCHING_FOR_EXCHANGE_TIMER 1
-#define MOVING_TOWARDS_TAPE_TIMER 2
+#define SHORT_RANGE_BEACON_SIGNAL_TIMER 3
+//------------------------------------------------------------------------------------------
 
+//-----------------------------------MOVING TIMES------------------------------------------
 #define SEARCHING_FOR_EXCHANGE_MILLIS 2000
-#define MOVING_TOWARDS_TAPE_MILLIS 1000
-#define SCANNING_BRAKE_MICROS 10000 //micros
+#define SCANNING_BRAKE_MICROS 10000 
+#define DISPLACING_ORIENTATION_MILLIS 500
+//--------------------------------------------------------------------------------------
 
+//---------------------------ORIENTATIONS------------------------------------------
 #define RIGHT_ORIENTATION 0
 #define LEFT_ORIENTATION 1
 #define UNKNOWN_ORIENTATION -1
+//--------------------------------------------------------------------------------
 
-#define SEARCHING_FOR_SERVER 0
+//---------------------- STATES -----------------------------------------------
+#define SEARCHING_FOR_SERVER_WIDE 0
 #define SEARCHING_FOR_EXCHANGE_LEFT 1
 #define MOVING_TOWARDS_TAPE 3
+#define SEARCHING_FOR_SERVER_SHORT 4
+//----------------------------------------------------------------------------
 
-#define SCANNING_SPEED 4
-#define TRAVELING_SPEED 4
+//-----------------------MOTOR SPEEDS -----------------------------------------
+#define SCANNING_SPEED 5
+#define TRAVELING_SPEED 8
 #define SCANNING_RIGHT_BRAKING_SPEED 10
 #define SCANNING_LEFT_BRAKING_SPEED -10
+#define SPEED_SCALER 25
+//-------------------------------------------------------------------------------
 
 
 
-int state = SEARCHING_FOR_SERVER;
 /*---------------- Module Function Prototypes ---------------*/
-void rise_detected();
+
+boolean CheckTapePresence();
+void TapeRiseDetected();
+void WideRangeBeaconRiseDetected();
+void UpdateWideRangeSignalPresence();
+void ChangeState(int newState);
+void SetTimer(int newState);
+void SetMotors(int newState);
+boolean CheckWideRangeForServer();
+boolean CheckWideRangeForExchange();
+boolean CheckShortRangeForSignal();
 /*---------------- Module Level Variables -------------------*/
 volatile unsigned long previousTime = 0;
-volatile unsigned long period = NO_SIGNAL_MICROS; 
+volatile unsigned long period = WIDE_RANGE_NO_SIGNAL_MICROS; 
 volatile boolean risingEdgeFlag = false; 
-boolean beaconFoundFlag = false;
+//boolean beaconFoundFlag = false;
+boolean onTape = false;
 int orientation = UNKNOWN_ORIENTATION;
 
+int state;
 /*---------------- Arduino Main Functions -------------------*/
 void setup() {
   Serial.begin(9600);
-  Serial.println("The Startin_Orientation_Test program has started!");
-  pinMode(TAPE_INPUT_PIN, INPUT);
-  WinkleInit();  
-  TMRArd_InitTimer(NO_SIGNAL_TIMER, 2);//millis
-  attachInterrupt(BEACON_INTERRUPT_NUMBER, rise_detected, RISING);
-  ChangeState(SEARCHING_FOR_SERVER);
- 
- // attachInterrupt(1, fall_detected, FALLING);
+  Serial.println("The Starting_Orientation_Test program has started!");
   
+  Init();  
+  TMRArd_InitTimer(WIDE_RANGE_NO_SIGNAL_TIMER, WIDE_RANGE_NO_SIGNAL_MILLIS);//millis
+  TMRArd_InitTimer(SHORT_RANGE_BEACON_SIGNAL_TIMER , SHORT_RANGE_NO_SIGNAL_MILLIS);
+  attachInterrupt(BEACON_INTERRUPT_NUMBER, WideRangeBeaconRiseDetected, RISING);
+  attachInterrupt(TAPE_INTERRUPT_NUMBER, TapeRiseDetected, RISING);
+  ChangeState(SEARCHING_FOR_SERVER_WIDE);
 }
 
 void loop() {
-  CheckSignalPresence();
+  UpdateWideRangeSignalPresence();
+  UpdateShortRangeSignalPresence();
   unsigned long currentPeriod = period;
   switch(state) {
-    case(SEARCHING_FOR_SERVER) :
-      if(currentPeriod < SERVER_BEACON_MICROS + BEACON_THRESHOLD && currentPeriod > SERVER_BEACON_MICROS - BEACON_THRESHOLD ){
+    // Search for server using wide range beacon from starting position
+    case(SEARCHING_FOR_SERVER_WIDE) :
+      if(CheckWideRangeForServer()){ //check if looking at a server beacon
         Serial.println("Server found!");
         switch(orientation){
           case(UNKNOWN_ORIENTATION) :
@@ -82,60 +123,105 @@ void loop() {
             ChangeState(SEARCHING_FOR_EXCHANGE_LEFT);
             break;
           case(RIGHT_ORIENTATION) :
-            Serial.println("Bot oriented with server - moving towards tape in RIGHT orientation ");
+            Serial.println("Bot in right orientation and facing towards server - displacing towards the RIGHT");
+            SpinLeft(SCANNING_SPEED);
+            delay(DISPLACING_ORIENTATION_MILLIS);
+            Serial.println("Bot displaced- moving towards tape");
             ChangeState(MOVING_TOWARDS_TAPE);
             break;
           case(LEFT_ORIENTATION) :
-            Serial.println("Bot oriented with server - moving towards tape in LEFT orientation ");
+            Serial.println("Bot in left orientation and facing towards server - displacing towards the LEFT");
+            SpinRight(SCANNING_SPEED);
+            delay(DISPLACING_ORIENTATION_MILLIS);
+            Serial.println("Bot displaced- moving towards tape");
             ChangeState(MOVING_TOWARDS_TAPE);
             break;
         }
         
       }
       break;
-    case(SEARCHING_FOR_EXCHANGE_LEFT) :
-      if(currentPeriod < EXCHANGE_BEACON_MICROS + BEACON_THRESHOLD && currentPeriod > EXCHANGE_BEACON_MICROS - BEACON_THRESHOLD ){
+    case(SEARCHING_FOR_SERVER_SHORT) :
+      if(CheckShortRangeForSignal() ){ // try checking wide range for server as well if short gives problems
+        DriveForwardCorrected(0);// replace with coin dumping code
+        state = 100;
+        Serial.println("Server found! ready to dump coins");
+      } 
+      break;
+//------------------------------ADD COIN DUMPING-------------------
+    case(100) :
+      break;
+//------------------------------------------------------------------
+    case(SEARCHING_FOR_EXCHANGE_LEFT) : 
+      // found an exchange in this direction - gives you orientation
+      if(CheckWideRangeForExchange()){
         Serial.println("Exchange found to the left of server - Bot in LEFT orientation- Returning to Server orientation");
         orientation = LEFT_ORIENTATION;
-        ChangeState(SEARCHING_FOR_SERVER);
+        ChangeState(SEARCHING_FOR_SERVER_WIDE);
       }
+      // time ran out and bot didn't find an exchange beacon in this direction - assume the exchange beacon is in the other direction
       else if(TMRArd_IsTimerExpired(SEARCHING_FOR_EXCHANGE_TIMER)){
         Serial.println("No exchange found to the left of server- Bot in RIGHT orientation- Returning to Server orientation");
         orientation = RIGHT_ORIENTATION;
-        ChangeState(SEARCHING_FOR_SERVER);
+        ChangeState(SEARCHING_FOR_SERVER_WIDE);
       }
       break;  
+    // moving forward until you hit tape
     case(MOVING_TOWARDS_TAPE) :
-      if(TMRArd_IsTimerExpired(MOVING_TOWARDS_TAPE_TIMER)){
-        //Serial.println("Test_Completed- stopping bot");
-        LeftMtrSpeed(0);
-        RightMtrSpeed(0); 
+      if(CheckTapePresence() == true){
+        Serial.println("Tape found! Aligning with server using short range sensor");
+        ChangeState(SEARCHING_FOR_SERVER_SHORT);
       }
-      break;     
+      break;    
   }
         
 }
 
+
 /*---------------- Module Functions -------------------------*/
 
-void rise_detected() {
-  unsigned long currentTime = micros(); 
-  period = currentTime - previousTime;
-  previousTime = currentTime; 
-  risingEdgeFlag = true;
+boolean CheckWideRangeForServer(){
+  int currentPeriod = period;
+  return currentPeriod < SERVER_BEACON_MICROS + BEACON_THRESHOLD && currentPeriod > SERVER_BEACON_MICROS - BEACON_THRESHOLD;
+}
+boolean CheckWideRangeForExchange(){
+  int currentPeriod = period;
+  return currentPeriod < EXCHANGE_BEACON_MICROS + BEACON_THRESHOLD && currentPeriod > EXCHANGE_BEACON_MICROS - BEACON_THRESHOLD;
+}
+boolean CheckShortRangeForSignal(){
+  //Check to see if the previous UpdateSignal Timer has expired if so, the beaconis out of range, otherwise it is in range
+  if(TMRArd_IsTimerExpired(SHORT_RANGE_BEACON_SIGNAL_TIMER)){
+     return false;
+   }
+  else{
+    return true;
+  }
+}
+boolean CheckTapePresence(){
+  return onTape;
+}
 
-}  
-void CheckSignalPresence(){
-   if(TMRArd_IsTimerExpired(NO_SIGNAL_TIMER)){
+void UpdateWideRangeSignalPresence(){
+    // if there hasn't been a rising edge for some amount of time, there is no signal and the period is set really high 
+   if(TMRArd_IsTimerExpired(WIDE_RANGE_NO_SIGNAL_TIMER)){
     if(!risingEdgeFlag){
-      period = NO_SIGNAL_MICROS;
+      period = WIDE_RANGE_NO_SIGNAL_MICROS;
     }
     risingEdgeFlag = false;
-    TMRArd_InitTimer(NO_SIGNAL_TIMER, 2);
+    TMRArd_InitTimer(WIDE_RANGE_NO_SIGNAL_TIMER, WIDE_RANGE_NO_SIGNAL_MILLIS);
 
   }
-  
 }
+
+void UpdateShortRangeSignalPresence(){
+  //Resets the timer if a high is read from the short range sensor
+  //timer should never expire when a beacon is in range
+  int signal = digitalRead(SHORT_RANGE_BEACON_INPUT_PIN);
+  // if we have a high then we must have encountered a rising edge so there is still a signal
+  if(signal == 1){ 
+    TMRArd_InitTimer(SHORT_RANGE_BEACON_SIGNAL_TIMER , SHORT_RANGE_NO_SIGNAL_MILLIS);
+  }
+}
+
   
 void ChangeState(int newState){
   Serial.print("Changing state to ");
@@ -145,17 +231,27 @@ void ChangeState(int newState){
   SetTimer(newState);
 }
 
+
+void TapeRiseDetected() {
+  onTape = true;
+  //tapeFlag = true;
+}
+void WideRangeBeaconRiseDetected() {
+  unsigned long currentTime = micros(); 
+  period = currentTime - previousTime;
+  previousTime = currentTime; 
+  risingEdgeFlag = true;
+
+}  
+
+
 void SetTimer(int newState){
   switch(newState){
     case(SEARCHING_FOR_EXCHANGE_LEFT):
       TMRArd_InitTimer(SEARCHING_FOR_EXCHANGE_TIMER, SEARCHING_FOR_EXCHANGE_MILLIS);
       break;
-    case(MOVING_TOWARDS_TAPE):
-      TMRArd_InitTimer(MOVING_TOWARDS_TAPE_TIMER, MOVING_TOWARDS_TAPE_MILLIS);
-      break;
   }
 }
-
 
 /******************************************************************************
   Function:    SetMotors
@@ -172,7 +268,7 @@ void SetMotors(int newState){
      case(SEARCHING_FOR_EXCHANGE_LEFT):
        SpinRight(SCANNING_SPEED);
        break;
-     case(SEARCHING_FOR_SERVER):
+     case(SEARCHING_FOR_SERVER_WIDE):
         switch(orientation){
           // orientation is unknown, spinning front right, back left
           case(UNKNOWN_ORIENTATION) :
@@ -184,11 +280,75 @@ void SetMotors(int newState){
             SpinLeft(SCANNING_SPEED);
             break;
         }
-       break; 
+       break;
+     case(SEARCHING_FOR_SERVER_SHORT):
+        switch(orientation){
+          // orientation has been found, spinning front left, back right to return to server orientation
+          case(RIGHT_ORIENTATION) :
+            SpinRight(SCANNING_SPEED); //Turn back towards the left to align with server
+          case(LEFT_ORIENTATION) :
+            SpinLeft(SCANNING_SPEED); // Turn back towards the right to align with server
+            break;
+        }
+       break;  
      case(MOVING_TOWARDS_TAPE) :
-       DriveBackward(TRAVELING_SPEED);
+       DriveBackwardCorrected(TRAVELING_SPEED);
        break;
    }
+}
+//-------------------------------------------------- Driving Functions------------------------------------------------------------------------------------------
+void Init(){
+  pinMode(TAPE_INPUT_PIN, INPUT);
+  pinMode(L_MOTOR_DIR, OUTPUT);
+  pinMode(R_MOTOR_DIR, OUTPUT);
+  pinMode(L_MOTOR_EN, OUTPUT);
+  pinMode(R_MOTOR_EN, OUTPUT);
+  pinMode(LEFT_FRONT_BUMPER, INPUT);
+  pinMode(RIGHT_FRONT_BUMPER, INPUT);
+  pinMode(LEFT_BACK_BUMPER, INPUT);
+  pinMode(RIGHT_BACK_BUMPER, INPUT);
+  pinMode(WIDE_RANGE_BEACON_INPUT_PIN, INPUT);
+  pinMode(SHORT_RANGE_BEACON_INPUT_PIN, INPUT);
+}
+
+void DriveBackwardCorrected(char newSpeed){  // Ideal speed in testing was Right Motor 9, left motor 7
+	LeftMtrSpeed(-1 * (newSpeed + 1));
+	RightMtrSpeed(-1 * (newSpeed - 1));
+}
+void DriveForwardCorrected(char newSpeed){
+	LeftMtrSpeed((newSpeed + 1));
+	RightMtrSpeed((newSpeed - 1));
+}
+void Stop() {
+  LeftMtrSpeed(0);
+  RightMtrSpeed(0);
+}
+
+void SpinRight(char newSpeed){
+	LeftMtrSpeed(-1 * newSpeed);
+	RightMtrSpeed(1 * newSpeed);
+}
+
+void SpinLeft(char newSpeed){
+	LeftMtrSpeed(1 * newSpeed);
+	RightMtrSpeed(-1 * newSpeed);
+}
+void LeftMtrSpeed(char newSpeed) {
+  if (newSpeed < 0) {
+    digitalWrite(L_MOTOR_DIR,LOW); // set the direction to reverse
+  } else {
+    digitalWrite(L_MOTOR_DIR,HIGH); // set the direction to forward
+  }
+  analogWrite(L_MOTOR_EN,SPEED_SCALER*abs(newSpeed));
+}
+
+void RightMtrSpeed(char newSpeed){
+  if (newSpeed < 0) {
+    digitalWrite(R_MOTOR_DIR,LOW); // set the direction to reverse
+  } else {
+    digitalWrite(R_MOTOR_DIR,HIGH); // set the direction to forward
+  }
+  analogWrite(R_MOTOR_EN,SPEED_SCALER*abs(newSpeed));
 }
 
 
