@@ -480,6 +480,9 @@ void SetMotors(int newState){
          SpinLeft(SCANNING_SPEED);
        }
        break;
+    case(ADJUSTING):
+      DriveBackwardCorrected(TRAVELING_SPEED);
+      break;
     case(FINDING_SERVER):
       DriveBackwardCorrected(TRAVELING_SPEED);
       break;
