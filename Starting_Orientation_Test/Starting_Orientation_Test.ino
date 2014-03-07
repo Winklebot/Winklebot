@@ -35,7 +35,7 @@
 #define EXCHANGE_BEACON_MICROS 333
 #define WIDE_RANGE_NO_SIGNAL_MICROS 2000
 #define WIDE_RANGE_NO_SIGNAL_MILLIS 2
-#define BEACON_THRESHOLD 20
+#define BEACON_THRESHOLD 50
 #define SHORT_RANGE_NO_SIGNAL_MILLIS 4
 //--------------------------------------------------------------------------------------------
 
@@ -46,9 +46,9 @@
 //------------------------------------------------------------------------------------------
 
 //-----------------------------------MOVING TIMES------------------------------------------
-#define SEARCHING_FOR_EXCHANGE_MILLIS 2000
+#define SEARCHING_FOR_EXCHANGE_MILLIS 500
 #define SCANNING_BRAKE_MICROS 10000 
-#define DISPLACING_ORIENTATION_MILLIS 500
+#define DISPLACING_ORIENTATION_MILLIS 0
 //--------------------------------------------------------------------------------------
 
 //---------------------------ORIENTATIONS------------------------------------------
@@ -66,7 +66,7 @@
 
 //-----------------------MOTOR SPEEDS -----------------------------------------
 #define SCANNING_SPEED 5
-#define TRAVELING_SPEED 8
+#define TRAVELING_SPEED 7
 #define SCANNING_RIGHT_BRAKING_SPEED 10
 #define SCANNING_LEFT_BRAKING_SPEED -10
 #define SPEED_SCALER 25
@@ -92,7 +92,7 @@ volatile unsigned long period = WIDE_RANGE_NO_SIGNAL_MICROS;
 volatile boolean risingEdgeFlag = false; 
 //boolean beaconFoundFlag = false;
 boolean onTape = false;
-int orientation = UNKNOWN_ORIENTATION;
+int orientation = RIGHT_ORIENTATION;
 
 int state;
 /*---------------- Arduino Main Functions -------------------*/
@@ -142,8 +142,8 @@ void loop() {
       break;
     case(SEARCHING_FOR_SERVER_SHORT) :
       if(CheckShortRangeForSignal() ){ // try checking wide range for server as well if short gives problems
-        DriveForwardCorrected(0);// replace with coin dumping code
-        state = 100;
+        DriveBackwardCorrected(TRAVELING_SPEED);// replace with coin dumping code
+        //state = 100;
         Serial.println("Server found! ready to dump coins");
       } 
       break;
@@ -154,21 +154,23 @@ void loop() {
     case(SEARCHING_FOR_EXCHANGE_LEFT) : 
       // found an exchange in this direction - gives you orientation
       if(CheckWideRangeForExchange()){
-        Serial.println("Exchange found to the left of server - Bot in LEFT orientation- Returning to Server orientation");
+        Serial.println("Exchange found to the left of server - Bot in LEFT orientation- Returning to Server orientation - turning RIGHT");
         orientation = LEFT_ORIENTATION;
         ChangeState(SEARCHING_FOR_SERVER_WIDE);
       }
       // time ran out and bot didn't find an exchange beacon in this direction - assume the exchange beacon is in the other direction
       else if(TMRArd_IsTimerExpired(SEARCHING_FOR_EXCHANGE_TIMER)){
-        Serial.println("No exchange found to the left of server- Bot in RIGHT orientation- Returning to Server orientation");
+        Serial.println("No exchange found to the left of server- Bot in RIGHT orientation- Returning to Server orientation - turning RIGHT");
         orientation = RIGHT_ORIENTATION;
         ChangeState(SEARCHING_FOR_SERVER_WIDE);
       }
       break;  
     // moving forward until you hit tape
     case(MOVING_TOWARDS_TAPE) :
-      if(CheckTapePresence() == true){
+      if(digitalRead(TAPE_INPUT_PIN) == 1){
         Serial.println("Tape found! Aligning with server using short range sensor");
+        //MovingForwardCorrected(TRAVELING_SPEED);
+        //delay(250)
         ChangeState(SEARCHING_FOR_SERVER_SHORT);
       }
       break;    
@@ -201,8 +203,8 @@ boolean CheckTapePresence(){
 }
 
 void UpdateWideRangeSignalPresence(){
-    // if there hasn't been a rising edge for some amount of time, there is no signal and the period is set really high 
-   if(TMRArd_IsTimerExpired(WIDE_RANGE_NO_SIGNAL_TIMER)){
+    // if there hasn't been a rising edge for some amount of time, there is no signal 
+   if(TMRArd_IsTimerExpired(WIDE_RANGE_NO_SIGNAL_TIMER)){//check the signal every so often to see if any rising edge flag has been set since you last checked 
     if(!risingEdgeFlag){
       period = WIDE_RANGE_NO_SIGNAL_MICROS;
     }
@@ -284,9 +286,14 @@ void SetMotors(int newState){
      case(SEARCHING_FOR_SERVER_SHORT):
         switch(orientation){
           // orientation has been found, spinning front left, back right to return to server orientation
+         // case(UNKNOWN_ORIENTATION) :
+          //  SpinRight(SCANNING_SPEED);
           case(RIGHT_ORIENTATION) :
+            Serial.println("switching to searching for server state- spinning back towards the left!");
             SpinRight(SCANNING_SPEED); //Turn back towards the left to align with server
+            break;
           case(LEFT_ORIENTATION) :
+            Serial.println("switching to searching for server state- spinning back towards the right!");
             SpinLeft(SCANNING_SPEED); // Turn back towards the right to align with server
             break;
         }
