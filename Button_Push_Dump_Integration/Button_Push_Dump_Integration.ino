@@ -54,6 +54,7 @@
 #define SEARCHING_FOR_EXCHANGE_TIMER 1
 #define MOVING_TOWARDS_TAPE_TIMER    2     
 #define BUTTON_PRESS_MILLIS    333
+#define BUTTON_PRESS_WAIT_MILLIS 1000  // time of delay that bot is waiting at pushed button before leaving
 #define BEACON_INTERRUPT_NUMBER  1
 #define TAPE_INTERRUPT_NUMBER    0 
 
@@ -202,7 +203,7 @@ void ButtonPressingSequence(){
       Serial.println("Driving backward");
       DriveForwardCorrected(0); 
       DriveBackwardCorrected(NOMINAL_TRAVELING_SPEED);
-      delay(BUTTON_PRESS_MILLIS*2); // drive into button for twice the time spend driving away, to ensure you make contact
+      delay(BUTTON_PRESS_WAIT_MILLIS); // drive into button for twice the time spend driving away, to ensure you make contact
      if(LBB == BUMPERHIT || RBB == BUMPERHIT){
        ExchangeButtonCounter = ExchangeButtonCounter + 1;   
      }

@@ -52,6 +52,7 @@
 #define RIGHT_DISPLACING_ORIENTATION_MILLIS 300
 #define LEFT_DISPLACING_ORIENTATION_MILLIS 300
 #define BUTTON_PRESS_MILLIS    333
+#define BUTTON_PRESS_WAIT_MILLIS 1000  // time of delay that bot is waiting at pushed button before leaving
 #define PAUSE_MILLIS            1000
 #define DUMP_DELAY_MILLIS       2500
 
@@ -64,19 +65,20 @@
 //--------------------------------------------------------------------------------
 
 //---------------------- STATES -----------------------------------------------
-#define SEARCHING_FOR_SERVER_WIDE 0
+#define SEARCHING_FOR_SERVER_WIDE   0
 #define SEARCHING_FOR_EXCHANGE_LEFT 1
-#define MOVING_TOWARDS_TAPE 3
-#define SEARCHING_FOR_SERVER_SHORT 4
-#define CORRECTING 5
-#define DISPLACING 6
-#define CORRECTING_SHORT_RANGE 7
+#define MOVING_TOWARDS_TAPE         3
+#define SEARCHING_FOR_SERVER_SHORT  4
+#define CORRECTING                  5
+#define DISPLACING                  6
+#define CORRECTING_SHORT_RANGE      7
 
 #define ADJUSTING                100
-#define FINDING_SERVER           101  // using "100" to avoid state overlap with other codes.
+#define FINDING_SERVER           101 
 #define PRESSING_SEQUENCE        102
 #define PREPARING_BUT_PRESS      103
 #define COUNTING_BUTTONS         104
+
 #define MOVING_TOWARDS_EXCHANGE  301 // servo dumping code
 #define DUMPING                  302
 
@@ -131,7 +133,7 @@ int RFB = BUMPEROPEN;
 int LBB = BUMPEROPEN;
 int RBB = BUMPEROPEN;
 
-int coinMax = 3; // total number of button presses needed to get desired coins (2 coins = 3 presses)
+int coinMax = 6; // total number of button presses needed to get desired coins (2 coins = 3 presses)
                 // using "<=" this number for count threshold, so should avoid an off-by-one error
 
 int ExchangeButtonCounter = 0;
@@ -512,7 +514,7 @@ void ButtonPressingSequence(){
       Serial.println("Driving backward");
       DriveForwardCorrected(0); 
       DriveBackwardCorrected(TRAVELING_SPEED);
-      delay(BUTTON_PRESS_MILLIS*2); // drive into button for twice the time spend driving away, to ensure you make contact
+      delay(BUTTON_PRESS_WAIT_MILLIS); // drive into button for longer than time spend driving away, to ensure you make contact
      if(LBB == BUMPERHIT || RBB == BUMPERHIT){
        ExchangeButtonCounter = ExchangeButtonCounter + 1;   
      }
