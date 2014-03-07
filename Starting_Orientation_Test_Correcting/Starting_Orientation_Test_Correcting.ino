@@ -48,7 +48,7 @@
 //-----------------------------------MOVING TIMES------------------------------------------
 #define SEARCHING_FOR_EXCHANGE_MILLIS 1000
 #define SCANNING_BRAKE_MICROS 10000 
-#define RIGHT_DISPLACING_ORIENTATION_MILLIS 0
+#define RIGHT_DISPLACING_ORIENTATION_MILLIS 200
 #define LEFT_DISPLACING_ORIENTATION_MILLIS 200
 
 //--------------------------------------------------------------------------------------
@@ -142,31 +142,45 @@ void loop() {
             //checkwiderangeserver if present- continue to displacing
             // if not present - reverse direction until checkwiderangeserver is true - continue to displacing
             if(CheckWideRangeForServer() == false){
-              SpinRight(SCANNING_SPEED);  // TO DO: Move this to SetMotor function
+              // SpinRight(SCANNING_SPEED); Moved this to SetMotor function - CORRECTING LEFT
               Serial.println("Correcting");
               ChangeState(CORRECTING);
             }
             else {
-              Serial.println("Correcting");
+              Serial.println("Displacing");
               ChangeState(DISPLACING);
-            }  
+            }
+           break;  
         }
       }
       break;
     case(CORRECTING): // corrects overshot bot
-          if (orientation == LEFT_ORIENTATION){
+         // if (orientation == LEFT_ORIENTATION){ SetMotors
             if(CheckWideRangeForServer() == true){
-              Stop(); // TO DO: Move this to SetMotor function
+              Stop(); 
               delay(1000); // Delay to make this state more visible
               Serial.println("Displacing");
               ChangeState(DISPLACING);
             }
-          }
+          
+          break;
+    case(CORRECTING_SHORT_RANGE):
+       if(CheckShortRangeForServer() == true){
+              Stop(); 
+       }
+          
+          break;
     case(DISPLACING):
             //displacing code, only for left orientation bc right has not needed correction yet.
           if (orientation == LEFT_ORIENTATION){
             SpinRight(SCANNING_SPEED);
             delay(LEFT_DISPLACING_ORIENTATION_MILLIS);
+            Serial.println("Bot displaced- moving towards tape");
+            ChangeState(MOVING_TOWARDS_TAPE);
+          }
+          else {
+            SpinLeft(SCANNING_SPEED);
+            delay(RIGHT_DISPLACING_ORIENTATION_MILLIS);
             Serial.println("Bot displaced- moving towards tape");
             ChangeState(MOVING_TOWARDS_TAPE);
           }
@@ -335,6 +349,28 @@ void SetMotors(int newState){
        break;  
      case(MOVING_TOWARDS_TAPE) :
        DriveBackwardCorrected(TRAVELING_SPEED);
+       break;
+     case(DISPLACING):
+       break;
+     case(CORRECTING):
+       if (orientation == LEFT_ORIENTATION){
+          Serial.println("correcting towards the LEFT");
+          SpinRight(SCANNING_SPEED);
+       }
+       else{
+         Serial.println("correcting towards the RIGHT");
+         SpinLeft(SCANNING_SPEED);
+       }
+       break;
+     case(CORRECTING_SHORT_RANGE):
+       if (orientation == LEFT_ORIENTATION){
+          Serial.println("SHORT RANGEE -correcting towards the LEFT");
+          SpinRight(SCANNING_SPEED);
+       }
+       else{
+         Serial.println("SHORT RANGE - correcting towards the RIGHT");
+         SpinLeft(SCANNING_SPEED);
+       }
        break;
    }
 }
