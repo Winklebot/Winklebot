@@ -161,6 +161,7 @@ void loop() {
               Serial.println("Displacing");
               ChangeState(DISPLACING);
             }
+           }
     case(DISPLACING):
             //displacing code, only for left orientation bc right has not needed correction yet.
           if (orientation == LEFT_ORIENTATION){
