@@ -71,6 +71,7 @@ Arduino IDE version: 0022
 #define CORRECTING 5
 #define DISPLACING 6
 #define CORRECTING_SHORT_RANGE 7
+#define RELOCATE_SERVER 8
 
 #define ADJUSTING 100
 #define FINDING_SERVER 101
@@ -134,6 +135,7 @@ int RBB = BUMPEROPEN;
 
 int coinMax = 38; // total number of button presses needed to get desired coins (2 coins = 3 presses)
                 // using "<=" this number for count threshold, so should avoid an off-by-one error
+//int coinMax2 = //30 for 3, 55 for 5 next, 
 
 int ExchangeButtonCounter = 0;
 int dumped = 0;
@@ -296,7 +298,7 @@ case(ADJUSTING):
       DropCoins();
       Serial.println("both bumpers pressed, dumped is ");
       Serial.println(dumped);
-      ChangeState(DUMPING);
+      ChangeState(RELOCATE_SERVER); // Changed 3/9 for second attempt
     }
     else if ((LFB == BUMPERHIT) && (dumped == 0)) { //left rear bumper depressed, run only right motor
        LeftMtrSpeed(0);
@@ -335,7 +337,18 @@ case(ADJUSTING):
        ChangeState(PRESSING_SEQUENCE);
      }
       break;
-  }
+    case(RELOCATE_SERVER):
+       DriveBackwardCorrected(TRAVELING_SPEED);
+       delay(1000);
+       Stop();
+       if(CheckShortRangeForSignal()){
+       Serial.println("Server Found, heading towards server");
+       ChangeState(ADJUSTING);
+       }
+       else{
+       ChangeState(SEARCHING_FOR_SERVER_SHORT);
+     }
+    }
         
 }
 

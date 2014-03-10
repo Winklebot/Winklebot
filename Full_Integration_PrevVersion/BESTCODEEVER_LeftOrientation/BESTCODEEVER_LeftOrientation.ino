@@ -132,7 +132,7 @@ int RFB = BUMPEROPEN;
 int LBB = BUMPEROPEN;
 int RBB = BUMPEROPEN;
 
-int coinMax = 38; // total number of button presses needed to get desired coins (2 coins = 3 presses)
+int coinMax = 6; // total number of button presses needed to get desired coins (2 coins = 3 presses)
                 // using "<=" this number for count threshold, so should avoid an off-by-one error
 
 int ExchangeButtonCounter = 0;
@@ -443,11 +443,11 @@ void SetMotors(int newState){
           // orientation is unknown, spinning front right, back left
           case(UNKNOWN_ORIENTATION) :
             SpinRight(SCANNING_SPEED);
-            break;
+            break; 
           // orientation has been found, spinning front left, back right to return to server orientation
           case(RIGHT_ORIENTATION) :
           case(LEFT_ORIENTATION) :
-            SpinLeft(SCANNING_SPEED);
+       //     SpinLeft(SCANNING_SPEED);
             break;
         }
        break;

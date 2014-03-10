@@ -123,7 +123,6 @@ Servo myservo;
 volatile unsigned long previousTime = 0;
 volatile unsigned long period = WIDE_RANGE_NO_SIGNAL_MICROS;
 volatile boolean risingEdgeFlag = false;
-//boolean beaconFoundFlag = false;
 boolean onTape = false;
 int orientation = UNKNOWN_ORIENTATION;
 
@@ -132,7 +131,7 @@ int RFB = BUMPEROPEN;
 int LBB = BUMPEROPEN;
 int RBB = BUMPEROPEN;
 
-int coinMax = 38; // total number of button presses needed to get desired coins (2 coins = 3 presses)
+int coinMax = 6; // total number of button presses needed to get desired coins
                 // using "<=" this number for count threshold, so should avoid an off-by-one error
 
 int ExchangeButtonCounter = 0;
@@ -172,13 +171,9 @@ void loop() {
             Stop();
             delay(PAUSE_MILLIS);
             Serial.println("Bot in right orientation and facing towards server - displacing towards the RIGHT");
-// SpinLeft(SCANNING_SPEED);
-// delay(RIGHT_DISPLACING_ORIENTATION_MILLIS);
-// Serial.println("Bot displaced- moving towards tape");
-// ChangeState(MOVING_TOWARDS_TAPE);
-// break;
             if(CheckWideRangeForServer() == false){
               // SpinRight(SCANNING_SPEED); Moved this to SetMotor function - CORRECTING LEFT
+              // QUESTION - notes say this was moved to SetMotor, but the RIGHT_ORIENTATION in Searching for Server Wide doesn't have any movement
               Serial.println("Correcting");
               ChangeState(CORRECTING);
             }
@@ -217,14 +212,14 @@ void loop() {
           
           break;
     case(CORRECTING_SHORT_RANGE):
-       if(CheckShortRangeForSignal() == true){ // use cshort range sensor to correct back to server
+       if(CheckShortRangeForSignal() == true){ // use short range sensor to correct back to server
               Stop();
        }
           Serial.println("ADJUSTING");
           ChangeState(ADJUSTING);
           break;
     case(DISPLACING):
-            //displacing code, only for left orientation bc right has not needed correction yet.
+            //displacing code
           if (orientation == LEFT_ORIENTATION){
             SpinRight(SCANNING_SPEED);
             delay(LEFT_DISPLACING_ORIENTATION_MILLIS);
@@ -241,8 +236,8 @@ void loop() {
     case(SEARCHING_FOR_SERVER_SHORT) :
       if(CheckShortRangeForSignal() ){ // try checking wide range for server as well if short gives problems
         /*if(orientation == LEFT_ORIENTATION){
-SpinRight(SCANNING_SPEED);
-delay(100);
+          SpinRight(SCANNING_SPEED);
+          delay(100);
 }
 */
         Stop();
@@ -256,9 +251,7 @@ delay(100);
         else {
         Serial.println("ADJUSTING");
         ChangeState(ADJUSTING);
-      }
-        //state = 100;
-       // Serial.println("Server found! ready to dump coins");
+        }
       }
       break;
 //------------------------------ADD BUTTON PRESS AND COIN DUMPING-------------------
@@ -266,11 +259,13 @@ case(ADJUSTING):
       CheckBumpers();
      if(LBB != RBB){ // if bumpers are not the same, then only one side hit wall
       TMRArd_InitTimer(9, BUMPER_MILLIS); // UPDATE 5 - added an out for if button pusher doesn't align
-      if((LBB == BUMPEROPEN) && (RBB == BUMPERHIT) && TMRArd_IsTimerExpired(9) == false) { // right back hit, left back not, need to twist left towards wall
+      if((LBB == BUMPEROPEN) && (RBB == BUMPERHIT) && TMRArd_IsTimerExpired(9) == false) { 
+        // right back hit, left back not, need to twist left towards wall
       LeftMtrSpeed(-1 * TRAVELING_SPEED);
       RightMtrSpeed(0);
       }
-      else if ((LBB == BUMPERHIT) && (RBB == BUMPEROPEN) && TMRArd_IsTimerExpired(9) == false) { // left back hit, right back not, need to twist right towards wall
+      else if ((LBB == BUMPERHIT) && (RBB == BUMPEROPEN) && TMRArd_IsTimerExpired(9) == false) { 
+        // left back hit, right back not, need to twist right towards wall
       RightMtrSpeed(-1 * TRAVELING_SPEED);
       LeftMtrSpeed(0);
       }
@@ -288,9 +283,10 @@ case(ADJUSTING):
      ButtonPressingSequence();
      ChangeState(MOVING_TOWARDS_EXCHANGE);
       break;
-  case(MOVING_TOWARDS_EXCHANGE) :
+  case(MOVING_TOWARDS_EXCHANGE) : // hard coded the speeds in SetMotors code.
     CheckBumpers();
-    if ((LFB == BUMPERHIT) || (RFB == BUMPERHIT) && (dumped == 0)) { //both rear bumpers depressed, stop motors
+    if ((LFB == BUMPERHIT) || (RFB == BUMPERHIT) && (dumped == 0)) { //if one front bumper depressed, stop motors.
+       // POSSIBLE UPDATE - make this && again, then account for only one bumper still being hit after bot attempts to straighten
       dumped = 1;
       DriveForwardCorrected(0);
       DropCoins();
@@ -327,16 +323,13 @@ case(ADJUSTING):
     case(MOVING_TOWARDS_TAPE) : //TODO clean tape sensing code up
       if(digitalRead(TAPE_INPUT_PIN) == 1){
         Serial.println("Tape found! Aligning with server using short range sensor");
-        //MovingForwardCorrected(TRAVELING_SPEED);
-        //delay(250)
         ChangeState(SEARCHING_FOR_SERVER_SHORT);
       }
-           if(LBB == BUMPERHIT || RBB == BUMPERHIT){
+      if(LBB == BUMPERHIT || RBB == BUMPERHIT){ // if reach server before cross tape, then still do bumping sequence
        ChangeState(PRESSING_SEQUENCE);
      }
       break;
-  }
-        
+  }        
 }
 
 
@@ -365,7 +358,8 @@ boolean CheckTapePresence(){
 
 void UpdateWideRangeSignalPresence(){
     // if there hasn't been a rising edge for some amount of time, there is no signal
-   if(TMRArd_IsTimerExpired(WIDE_RANGE_NO_SIGNAL_TIMER)){//check the signal every so often to see if any rising edge flag has been set since you last checked
+   if(TMRArd_IsTimerExpired(WIDE_RANGE_NO_SIGNAL_TIMER)){
+     //check the signal every so often to see if any rising edge flag has been set since you last checked
     if(!risingEdgeFlag){
       period = WIDE_RANGE_NO_SIGNAL_MICROS;
     }
@@ -447,7 +441,7 @@ void SetMotors(int newState){
           // orientation has been found, spinning front left, back right to return to server orientation
           case(RIGHT_ORIENTATION) :
           case(LEFT_ORIENTATION) :
-            SpinLeft(SCANNING_SPEED);
+       //     SpinLeft(SCANNING_SPEED); REMOVED 3/9
             break;
         }
        break;
@@ -474,7 +468,8 @@ void SetMotors(int newState){
      case(CORRECTING):
        if (orientation == LEFT_ORIENTATION){
           Serial.println("correcting towards the LEFT");
-          SpinRight(SCANNING_SPEED);
+          SpinRight(SCANNING_SPEED); 
+ //         SpinLeft(SCANNING_SPEED); // ADDED 3/9 at 4pm. Switched direction of scan to correct (CCW)
        }
        else{
          Serial.println("correcting towards the LEFT");
@@ -500,7 +495,7 @@ void SetMotors(int newState){
     case(PRESSING_SEQUENCE):
       Stop();
       break;
-    case(MOVING_TOWARDS_EXCHANGE):
+    case(MOVING_TOWARDS_EXCHANGE): // Hard coded in the motor speeds for driving straight to exchange
      IntRightMtrSpeed(190);
      IntLeftMtrSpeed(225);
 //      DriveForwardCorrected(9);
@@ -510,8 +505,7 @@ void SetMotors(int newState){
 //      DriveForwardCorrected(TRAVELING_SPEED);
 //      delay(500);
 //      Stop();
-//      delay(500);
-//      break;
+      break;
    }
 }
 
@@ -550,13 +544,10 @@ void CheckBumpers(){
   LFB = digitalRead(LEFT_FRONT_BUMPER);
   RFB = digitalRead(RIGHT_FRONT_BUMPER);
   LBB = digitalRead(LEFT_BACK_BUMPER);
-  //Serial.println(LBB);
   RBB = digitalRead(RIGHT_BACK_BUMPER);
-  //Serial.println(RBB);
 }
 
-
-//-------------------------------------------------- Driving Functions------------------------------------------------------------------------------------------
+//-------------------------------------------------- Driving Functions-----------------------------------------------------
 void Init(){
   pinMode(TAPE_INPUT_PIN, INPUT);
   pinMode(L_MOTOR_DIR, OUTPUT);
